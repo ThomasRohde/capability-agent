@@ -45,6 +45,17 @@ class CapabilityList(RootModel[List[Capability]]):
         children = self.children_map()
         return [c for c in self.root if len(children.get(c.id, [])) == 0]
 
+    def leaves_for_generation(self) -> List[Capability]:
+        """Return leaf nodes that need generation (capability attribute is 0 or missing)."""
+        children = self.children_map()
+        leaves = [c for c in self.root if len(children.get(c.id, [])) == 0]
+        
+        # Filter leaves that need generation (capability is 0 or missing)
+        return [
+            leaf for leaf in leaves 
+            if getattr(leaf, 'capability', 0) == 0
+        ]
+
     @field_validator("root")
     @classmethod
     def validate_unique_ids(cls, v: List[Capability]) -> List[Capability]:

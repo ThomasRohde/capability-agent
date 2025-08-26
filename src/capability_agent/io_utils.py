@@ -6,7 +6,7 @@ from enum import Enum
 import re
 from datetime import datetime
 from pathlib import Path
-from typing import Any, Optional
+from typing import Any, Dict, List, Optional
 
 from rich.console import Console
 from rich.theme import Theme
@@ -92,3 +92,17 @@ def safe_filename(name: str, max_len: int = 80) -> str:
 
 def timestamp_for_filename() -> str:
     return datetime.now().strftime("%Y%m%d-%H%M%S")
+
+
+def save_progress(path: Path, model_data: List[Dict[str, Any]]) -> None:
+    """Atomically save progress to the input file."""
+    # Write to temporary file first, then rename for atomicity
+    temp_path = path.with_suffix(path.suffix + ".tmp")
+    try:
+        write_json_file(temp_path, model_data)
+        temp_path.replace(path)
+    except Exception:
+        # Clean up temp file if something went wrong
+        if temp_path.exists():
+            temp_path.unlink()
+        raise

@@ -16,7 +16,7 @@ from rich.progress import (
 )
 from rich.theme import Theme
 
-from .io_utils import ContextFormat, ContextOptions, ensure_dir, safe_filename, timestamp_for_filename
+from .io_utils import ContextFormat, ContextOptions, ensure_dir, safe_filename, timestamp_for_filename, save_progress
 from .llm import call_openai, call_openai_streaming, ensure_client
 from .models import Capability, CapabilityList
 from .prompting import build_prompt_context, render_prompt
@@ -35,11 +35,40 @@ def augment_model(
     tasks: int = 4,
     log_prompts_dir: Optional[Path] = None,
     use_streaming: bool = False,
+    restart_mode: bool = False,
+    input_path: Optional[Path] = None,
 ) -> CapabilityList:
     client = ensure_client()
 
-    leaves = model.leaves()
+    # Use different leaf selection based on restart mode
+    if restart_mode:
+        leaves = model.leaves_for_generation()
+        if not leaves:
+            console.print("No capabilities need generation. All leaves already generated.", style="info")
+            return model
+    else:
+        leaves = model.leaves()
+    
     new_nodes: List[Capability] = []
+    
+    def save_leaf_progress(leaf: Capability) -> None:
+        """Mark a leaf as generated and save progress if in restart mode."""
+        if restart_mode and input_path:
+            # Update the capability attribute for the processed leaf
+            leaf_dict = leaf.model_dump()
+            leaf_dict['capability'] = 1
+            
+            # Find and update the leaf in the current model
+            for i, c in enumerate(model.root):
+                if c.id == leaf.id:
+                    # Create updated capability and replace in model
+                    updated_cap = Capability.model_validate(leaf_dict)
+                    model.root[i] = updated_cap
+                    break
+            
+            # Save progress
+            current_data = [c.model_dump() for c in model.root] + [c.model_dump() for c in new_nodes]
+            save_progress(input_path, current_data)
 
     def generate_children(leaf: Capability) -> Sequence[Capability]:
         # Build prompt context and render
@@ -87,14 +116,22 @@ def augment_model(
                 "name": item["name"],
                 "description": item["description"],
                 "parent": leaf.id,
+                "capability": 1,  # Mark new nodes as generated
             }
             children.append(Capability.model_validate(node_data))
+        
+        # Save progress after successful generation
+        save_leaf_progress(leaf)
         return children
 
     # Handle streaming vs concurrent execution differently
-    if use_streaming and tasks <= 1:
-        # Serial execution with streaming - no outer progress bar to avoid conflicts
-        console.print(f"[info]Streaming generation for {len(leaves)} leaves...[/info]")
+    # Force serial execution in restart mode to ensure atomic progress saves
+    if (use_streaming and tasks <= 1) or restart_mode:
+        # Serial execution with streaming or restart mode - no outer progress bar to avoid conflicts
+        if restart_mode:
+            console.print(f"[info]Restart mode: processing {len(leaves)} remaining leaves...[/info]")
+        else:
+            console.print(f"[info]Streaming generation for {len(leaves)} leaves...[/info]")
         for i, leaf in enumerate(leaves, 1):
             console.print(f"[info]Processing leaf {i}/{len(leaves)}: {leaf.name}[/info]")
             new_nodes.extend(generate_children(leaf))

@@ -69,7 +69,7 @@ business-capgen \
    - Clear error messages via Rich console output
 
 6. **Tooling**:
-   - Use `uv` package manager to run tools, e.g., `uv run ruff`.
+   - Use `uv` package manager to run tools, e.g., `uv run ruff check`.
 
 ### Dependencies
 - **openai**: LLM API calls (currently configured for gpt-5-nano)

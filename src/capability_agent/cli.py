@@ -43,6 +43,7 @@ def run(
         writable=True,
     ),
     streaming: bool = typer.Option(False, "--streaming", help="Use streaming API for real-time progress (requires --tasks 1)"),
+    restart: bool = typer.Option(False, "--restart", help="Resume generation from input file, ignoring output option"),
 ):
     """Augment INPUT model and write enhanced OUTPUT as JSON array."""
     console.print(Panel.fit("business-capgen: Augmenting capability model", title="capability-agent"))
@@ -80,6 +81,12 @@ def run(
         console.print("Warning: Streaming requires --tasks 1. Setting tasks=1 automatically.", style="info")
         tasks = 1
 
+    # Determine output path - use input path if restart mode
+    output_path = input if restart else output
+    
+    if restart:
+        console.print(f"Restart mode: will update {input} in-place", style="info")
+
     try:
         enhanced = augment_model(
             model=model,
@@ -91,6 +98,8 @@ def run(
             tasks=tasks,
             log_prompts_dir=log_dir,
             use_streaming=streaming,
+            restart_mode=restart,
+            input_path=input if restart else None,
         )
     except Exception as e:  # noqa: BLE001
         console.print(f"Augmentation failed: {e}", style="error")
@@ -98,11 +107,11 @@ def run(
 
     # Emit as plain list of dicts
     try:
-        write_json_file(output, [c.model_dump() for c in enhanced.root])
+        write_json_file(output_path, [c.model_dump() for c in enhanced.root])
     except Exception as e:  # noqa: BLE001
         console.print(f"Failed to write output: {e}", style="error")
         raise typer.Exit(1)
-    console.print(f"Wrote {len(enhanced.root)} nodes -> {output}", style="info")
+    console.print(f"Wrote {len(enhanced.root)} nodes -> {output_path}", style="info")
 
 
 def main() -> None:
