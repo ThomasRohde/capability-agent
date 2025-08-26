@@ -23,6 +23,7 @@ def run(
     template: Path = typer.Option(..., exists=True, dir_okay=False, readable=True, help="Jinja2 template path"),
     output: Path = typer.Option(..., dir_okay=False, writable=True, help="Output JSON path"),
     max_capabilities: int = typer.Option(5, min=1, max=50, help="Max sub-capabilities per leaf"),
+    tasks: int = typer.Option(4, min=1, help="Number of concurrent LLM calls"),
     override_system_message: Optional[Path] = typer.Option(None, exists=True, dir_okay=False, readable=True, help="Optional system message file"),
     context_level: Optional[str] = typer.Option(None, help="Comma-separated context: full_tree,parent,siblings"),
 ):
@@ -55,6 +56,7 @@ def run(
             context_opts=ctx_opts,
             system_message=system_message,
             max_capabilities=max_capabilities,
+            tasks=tasks,
         )
     except Exception as e:  # noqa: BLE001
         console.print(f"Augmentation failed: {e}", style="error")

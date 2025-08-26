@@ -2,7 +2,8 @@ from __future__ import annotations
 
 import uuid
 from pathlib import Path
-from typing import List
+from typing import List, Sequence
+from concurrent.futures import ThreadPoolExecutor, as_completed
 
 from rich.console import Console
 from rich.progress import (
@@ -30,6 +31,7 @@ def augment_model(
     context_opts: ContextOptions,
     system_message: str,
     max_capabilities: int,
+    tasks: int = 4,
 ) -> CapabilityList:
     client = ensure_client()
 
@@ -50,17 +52,16 @@ def augment_model(
             "Generating sub-capabilities", total=len(leaves)
         )
 
-        for leaf in leaves:
-            # Optionally show which leaf is being processed in the description
-            progress.update(overall_task, description=f"Generating: {leaf.name}")
-
+        def generate_children(leaf: Capability) -> Sequence[Capability]:
             # Build prompt context and render
             context = build_prompt_context(model, leaf, context_opts)
             context["max_capabilities"] = max_capabilities
             user_prompt = render_prompt(template_path, context)
 
             # Call LLM (one generation per leaf)
-            generated = call_openai(client, system_message, user_prompt, max_capabilities)
+            generated = call_openai(
+                client, system_message, user_prompt, max_capabilities
+            )
 
             # Inherit extra fields from parent (leaf) except reserved keys
             inherited = leaf.model_dump()
@@ -68,6 +69,7 @@ def augment_model(
             inherited.pop("name", None)
             inherited.pop("description", None)
 
+            children: List[Capability] = []
             for item in generated:
                 node_data = {
                     **inherited,
@@ -76,10 +78,29 @@ def augment_model(
                     "description": item["description"],
                     "parent": leaf.id,
                 }
-                new_nodes.append(Capability.model_validate(node_data))
+                children.append(Capability.model_validate(node_data))
+            return children
 
-            # Advance the overall bar once per generation/leaf
-            progress.advance(overall_task, 1)
+        # Run leaves concurrently
+        if tasks <= 1 or len(leaves) <= 1:
+            for leaf in leaves:
+                progress.update(overall_task, description=f"Generating: {leaf.name}")
+                new_nodes.extend(generate_children(leaf))
+                progress.advance(overall_task, 1)
+        else:
+            progress.update(overall_task, description=f"Generating with {tasks} workers…")
+            with ThreadPoolExecutor(max_workers=tasks) as executor:
+                future_map = {executor.submit(generate_children, leaf): leaf for leaf in leaves}
+                for fut in as_completed(future_map):
+                    leaf = future_map[fut]
+                    try:
+                        children = fut.result()
+                        new_nodes.extend(children)
+                    except Exception as e:  # noqa: BLE001
+                        # Fail fast on any leaf error
+                        raise e
+                    finally:
+                        progress.advance(overall_task, 1)
 
     output = CapabilityList.model_validate([*model.root, *new_nodes])
 

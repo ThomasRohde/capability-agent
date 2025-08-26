@@ -24,6 +24,7 @@ business-capgen \
   --template examples/prompt.j2 \
   --output out.json \
   --max-capabilities 5 \
+  --tasks 4 \
   --override-system-message examples/system.txt \
   --context-level full_tree,parent,siblings
 ```
