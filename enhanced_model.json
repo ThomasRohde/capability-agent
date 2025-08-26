@@ -1,0 +1,44 @@
+[
+  {
+    "id": "ae3e6fa9-5789-4181-8a3a-738565742c55",
+    "name": "Enterprise Architecture CoE",
+    "description": "An EA Center of Excellence in a large banking organization.",
+    "parent": null,
+    "capability": 0
+  },
+  {
+    "id": "daf2a71c-c8a9-4409-84d4-a6210cd70356",
+    "name": "Architecture Governance",
+    "description": "Establish and enforce architecture standards and policies.",
+    "parent": "ae3e6fa9-5789-4181-8a3a-738565742c55",
+    "capability": 0
+  },
+  {
+    "id": "a38af62a-2278-4797-af88-5bda2d85e5d3",
+    "name": "Technology Assessment",
+    "description": "Evaluate and recommend technologies to support business needs.",
+    "parent": "ae3e6fa9-5789-4181-8a3a-738565742c55",
+    "capability": 0
+  },
+  {
+    "id": "38f62917-ec93-4d41-84d7-f0d49d3d2fda",
+    "name": "Portfolio Management",
+    "description": "Manage and prioritize architecture initiatives and projects.",
+    "parent": "ae3e6fa9-5789-4181-8a3a-738565742c55",
+    "capability": 0
+  },
+  {
+    "id": "c4981f32-9431-4ca4-9790-4b021a7bb2c4",
+    "name": "Stakeholder Engagement",
+    "description": "Facilitate communication and collaboration with business stakeholders.",
+    "parent": "ae3e6fa9-5789-4181-8a3a-738565742c55",
+    "capability": 0
+  },
+  {
+    "id": "7e6e682b-3484-4878-8d30-af51f02c400b",
+    "name": "Training and Enablement",
+    "description": "Provide training programs to enhance architectural skills across the organization.",
+    "parent": "ae3e6fa9-5789-4181-8a3a-738565742c55",
+    "capability": 0
+  }
+]

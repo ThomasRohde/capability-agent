@@ -1,0 +1,35 @@
+You are given a business capability model. Generate up to {{ max_capabilities }} sub-capabilities for the leaf node below.
+
+Requirements:
+- Output a JSON array only, inside a Markdown ```json code block.
+- Each item must have fields: name (string), description (string).
+- Keep names concise and distinct.
+- Avoid duplicates and overlaps with existing siblings.
+
+Leaf Node:
+{{ node | tojson(indent=2) }}
+
+{% if parent is defined %}
+Parent:
+{{ parent | tojson(indent=2) }}
+{% endif %}
+
+{% if siblings is defined %}
+Siblings:
+{{ siblings | tojson(indent=2) }}
+{% endif %}
+
+{% if full_tree is defined %}
+Full Tree:
+{{ full_tree | tojson(indent=2) }}
+{% endif %}
+
+Respond strictly as:
+```json
+[
+  {
+    "name": "Capability 1",
+    "description": "Capability 1 description"
+  }
+]
+```
