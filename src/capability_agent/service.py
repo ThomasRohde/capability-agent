@@ -17,7 +17,7 @@ from rich.progress import (
 from rich.theme import Theme
 
 from .io_utils import ContextOptions, ensure_dir, safe_filename, timestamp_for_filename
-from .llm import call_openai, ensure_client
+from .llm import call_openai, call_openai_streaming, ensure_client
 from .models import Capability, CapabilityList
 from .prompting import build_prompt_context, render_prompt
 
@@ -33,6 +33,7 @@ def augment_model(
     max_capabilities: int,
     tasks: int = 4,
     log_prompts_dir: Optional[Path] = None,
+    use_streaming: bool = False,
 ) -> CapabilityList:
     client = ensure_client()
 
@@ -75,9 +76,14 @@ def augment_model(
                     console.print(f"Prompt log failed for {leaf.name}: {e}", style="error")
 
             # Call LLM (one generation per leaf)
-            generated = call_openai(
-                client, system_message, user_prompt, max_capabilities
-            )
+            if use_streaming and tasks <= 1:  # Only use streaming in serial mode
+                generated = call_openai_streaming(
+                    client, system_message, user_prompt, max_capabilities, show_progress=False
+                )
+            else:
+                generated = call_openai(
+                    client, system_message, user_prompt, max_capabilities
+                )
 
             # Inherit extra fields from parent (leaf) except reserved keys
             inherited = leaf.model_dump()

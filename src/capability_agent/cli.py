@@ -40,6 +40,7 @@ def run(
         dir_okay=True,
         writable=True,
     ),
+    streaming: bool = typer.Option(False, "--streaming", help="Use streaming API for real-time progress"),
 ):
     """Augment INPUT model and write enhanced OUTPUT as JSON array."""
     console.print(Panel.fit("business-capgen: Augmenting capability model", title="capability-agent"))
@@ -75,6 +76,7 @@ def run(
             max_capabilities=max_capabilities,
             tasks=tasks,
             log_prompts_dir=log_dir,
+            use_streaming=streaming,
         )
     except Exception as e:  # noqa: BLE001
         console.print(f"Augmentation failed: {e}", style="error")

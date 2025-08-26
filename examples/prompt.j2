@@ -101,18 +101,18 @@ Second paragraph covering outcomes, success measures, and alignment with the par
 ```
 
 ## Output Constraints
-- Output only a JSON array as a Markdown ```json code block; no extra text.
+- Return a structured response with an "items" array containing capability objects.
 - Each array element schema:
   - "name": string
   - "description": string (as specified above)
 - Array must not exceed {{ max_capabilities }}; prioritize the most logical decomposition.
-- If required context is missing or insufficient to produce high-quality sub-capabilities, output [] only.
+- If required context is missing or insufficient to produce high-quality sub-capabilities, return empty items array.
 - Generate only as many sub-capabilities as can be robustly defined.
 - No duplicates or overlaps.
 
 ## Output Format
-- Strict, valid JSON in a Markdown codeblock.
-- No extra keys, text, or trailing commas.
+- Structured response following the defined schema.
+- No extra keys or fields beyond "items" containing the capability array.
 
 # Reasoning Steps
 - Parse and structure context by sections.
@@ -130,8 +130,8 @@ Second paragraph covering outcomes, success measures, and alignment with the par
 - For input/output: list essential elements only.
 
 # Stop Conditions
-- If context is clearly insufficient, output only [].
+- If context is clearly insufficient, return empty items array.
 - Stop when all robust, non-overlapping sub-capabilities are defined (up to max).
 
 # Preambles
-- None in output. Return only the specified JSON array.
+- None in output. Return only the structured response with items array.
