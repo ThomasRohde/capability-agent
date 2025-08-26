@@ -1,0 +1,149 @@
+[
+  {
+    "id": "ae3e6fa9-5789-4181-8a3a-738565742c55",
+    "name": "Enterprise Architecture CoE",
+    "description": "An EA Center of Excellence in a large banking organization.",
+    "parent": null,
+    "capability": 0
+  },
+  {
+    "id": "e9f98376-5fe6-4dc0-911c-3f937e54ef77",
+    "name": "Architecture Governance",
+    "description": "Establish and enforce architecture standards and policies.",
+    "parent": "ae3e6fa9-5789-4181-8a3a-738565742c55",
+    "capability": 0
+  },
+  {
+    "id": "de0629b3-0db1-48de-9073-e610b78667d4",
+    "name": "Technology Assessment",
+    "description": "Evaluate and recommend technologies aligned with business goals.",
+    "parent": "ae3e6fa9-5789-4181-8a3a-738565742c55",
+    "capability": 0
+  },
+  {
+    "id": "6d07d0a8-3f0c-4543-9e75-04864d07b15d",
+    "name": "Roadmap Development",
+    "description": "Create and maintain a strategic roadmap for architecture initiatives.",
+    "parent": "ae3e6fa9-5789-4181-8a3a-738565742c55",
+    "capability": 0
+  },
+  {
+    "id": "a8805a45-e824-4396-9ad5-85e88774560e",
+    "name": "Stakeholder Engagement",
+    "description": "Facilitate communication and collaboration among stakeholders.",
+    "parent": "ae3e6fa9-5789-4181-8a3a-738565742c55",
+    "capability": 0
+  },
+  {
+    "id": "f5873c33-06e8-45fe-addf-cdfc5ebc4390",
+    "name": "Capability Maturity Assessment",
+    "description": "Assess and improve the maturity of architectural practices.",
+    "parent": "ae3e6fa9-5789-4181-8a3a-738565742c55",
+    "capability": 0
+  },
+  {
+    "id": "916dacba-2351-415c-9da1-d5fdfdf9b428",
+    "name": "Technology Landscape Analysis",
+    "description": "Technology Landscape Analysis captures current and emerging technologies and their viability for business capabilities. It inventories options, market intelligence, and technology readiness to inform investment decisions and risk posture.\n\nOutcomes include a defensible shortlist, gaps relative to the target capabilities, and clear alignment to business goals, enabling informed prioritization and roadmap planning within Technology Assessment.\n\n**Inputs**\n- Business strategy and capability maps\n- Current technology inventory and architecture\n- Market intelligence and technology trend reports\n- Vendor landscape and potential options\n- Regulatory, security, and compliance considerations\n\n**Outputs**\n- Technology landscape report\n- Shortlist of candidate technologies with maturity levels\n- Gap and risk flags relative to business needs\n- Updated technology inventory and reference architectures\n\n**Stakeholders**\n- Enterprise Architecture\n- IT Strategy and Portfolio Management\n- Business Capability Owners\n- Security and Compliance\n- Vendor Management\n\n**Enabling Technologies and Tools**\n- Technology Radar tools\n- Market intelligence feeds\n- Data visualization and analytics platforms\n\n**Alignment with Industry Standards and Frameworks**\n- TOGAF ADM guidance for Technology Architecture and Architecture Vision\n- ArchiMate modeling for landscape representations\n- ISO/IEC 42010 guidance on architecture descriptions",
+    "parent": "de0629b3-0db1-48de-9073-e610b78667d4",
+    "capability": 0
+  },
+  {
+    "id": "cf834cdd-9398-4181-afd5-20031286043b",
+    "name": "Technology Fit and Impact Analysis",
+    "description": "Technology Fit and Impact Analysis assesses how well shortlisted technologies align with business goals, architecture, and operational constraints, and identifies integration, security, and data implications to guide decisions within Technology Assessment.\n\nOutcomes include fit and impact scorecards, dependency maps, and recommended integration approaches that inform prioritization and risk-aware planning aligned to the enterprise roadmap.\n\n**Inputs**\n- Business goals and capability requirements\n- Current target architecture and integration points\n- Data strategy and data needs\n- Security, privacy, regulatory constraints\n- Estimated total cost of ownership and benefits\n\n**Outputs**\n- Fit and impact scorecards\n- Dependency map and integration implications\n- Recommended integration approaches and migration options\n- Residual risk and compliance considerations\n\n**Stakeholders**\n- Enterprise Architecture\n- Security and Compliance\n- Data & Analytics\n- Applications and Platform teams\n- Finance / Cost Management\n- Business Capability Owners\n\n**Enabling Technologies and Tools**\n- Architecture modeling and analysis tools (e.g., Archi, ADOit)\n- Interoperability testing and prototyping tools\n- Cost/benefit analysis templates\n\n**Alignment with Industry Standards and Frameworks**\n- TOGAF Architecture Content Framework and ArchiMate\n- ISO/IEC 42010\n- NIST Cybersecurity Framework references",
+    "parent": "de0629b3-0db1-48de-9073-e610b78667d4",
+    "capability": 0
+  },
+  {
+    "id": "29a8aad5-b28c-40e0-abb2-a74700eb13c1",
+    "name": "Technology Rationalization and Recommendation",
+    "description": "Technology Rationalization and Recommendation consolidates landscape and fit results into a prioritized mandate with a solid business case, detailing recommended technologies, rationale, and phased implementation to advance technology adoption.\n\nOutcomes include an approved technology shortlist with rationales, a detailed business case and ROI summary, and a phased implementation plan or pilots aligned to funding and roadmap constraints.\n\n**Inputs**\n- Landscape analysis outputs\n- Fit and impact analysis results\n- Business cases and ROI calculations\n- Roadmap constraints and priorities\n- Budget signals and funding plans\n\n**Outputs**\n- Recommended technology shortlist with rationales\n- Detailed business case and ROI summary\n- Phased implementation plan or pilots\n- Risk acceptance and governance notes\n\n**Stakeholders**\n- Steering Committee / IT Leadership\n- Enterprise Architecture\n- Portfolio Management / PMO\n- Finance / CFO\n- Security & Compliance\n- Business Capability Owners\n\n**Enabling Technologies and Tools**\n- ROI calculators and business case templates\n- Vendor evaluation templates\n- Pilot/implementation templates\n\n**Alignment with Industry Standards and Frameworks**\n- TOGAF governance and decision-making guidance\n- ITIL alignment for service management considerations\n- PMI PMBOK-aligned governance and project initiation",
+    "parent": "de0629b3-0db1-48de-9073-e610b78667d4",
+    "capability": 0
+  },
+  {
+    "id": "0c7fe7b7-8255-47ed-aa82-db9ca05727a3",
+    "name": "Stakeholder Identification and Analysis",
+    "description": "Establishes who needs to be engaged for EA initiatives, capturing roles, influence, interests, and information needs to support targeted interaction.\n\nProduces a stakeholder register and analysis artifacts that enable prioritization, alignment with strategy, and measurable engagement outcomes across the enterprise.\n\n**Inputs**\n- Strategic objectives and EA scope\n- Organizational structure and contact data\n- Existing stakeholder maps or registers\n- Program or project charters\n- Business capability maps\n\n**Outputs**\n- Stakeholder register with roles, influence, and engagement needs\n- Stakeholder analysis reports\n- Engagement action items or tailored engagement plans\n\n**Stakeholders**\n- Enterprise Architecture Lead\n- Business Relationship Managers\n- Portfolio/PMO\n- IT Leadership\n- Compliance and Risk\n- Change Management\n\n**Enabling Technologies and Tools**\n- Stakeholder mapping tools\n- CRM/contact data platform\n- Collaboration platforms\n\n**Alignment with Industry Standards and Frameworks**\n- PMI PMBOK Stakeholder Analysis\n- RACI and power/interest grids\n- TOGAF ADM Stakeholder concerns",
+    "parent": "a8805a45-e824-4396-9ad5-85e88774560e",
+    "capability": 0
+  },
+  {
+    "id": "c3cec317-6650-444a-8dfd-cac1c8028565",
+    "name": "Stakeholder Engagement Planning and Channel Management",
+    "description": "Develops a formal plan for engaging stakeholders, defining channels, cadence, and engagement rituals to ensure timely, two-way communication.\n\nDelivers predictable engagement outcomes, supports decision making, and aligns with EA roadmaps and portfolio priorities.\n\n**Inputs**\n- Stakeholder register\n- Engagement policies and standards\n- EA roadmaps and program calendars\n- Communications requirements\n- Available channels and tools\n\n**Outputs**\n- Stakeholder engagement plan\n- Channel strategy and calendars\n- Meeting charters and communication artifacts\n- Cadence reports\n\n**Stakeholders**\n- EA Program Office\n- Business Stakeholders\n- IT and Operations\n- Communications\n- Compliance\n\n**Enabling Technologies and Tools**\n- Email and collaboration platforms\n- Intranet and meeting automation\n- Webinar platforms\n\n**Alignment with Industry Standards and Frameworks**\n- PMI PMBOK Communications Management\n- TOGAF Governance and Architecture Board communications",
+    "parent": "a8805a45-e824-4396-9ad5-85e88774560e",
+    "capability": 0
+  },
+  {
+    "id": "18749509-4ad9-4f4f-acfa-ef9c4704f598",
+    "name": "Stakeholder Feedback, Issue Resolution, and Collaboration Governance",
+    "description": "Collects stakeholder input, channels feedback into decisions, and ensures timely resolution of issues affecting EA outcomes.\n\nEstablishes governance around collaboration, decision rights, and accountability, linking feedback to changes in architecture and roadmaps.\n\n**Inputs**\n- Feedback channels and survey results\n- Issue/change logs\n- Decision records\n- Risk and dependency logs\n- Meeting notes\n\n**Outputs**\n- Feedback analysis reports\n- Issue resolution logs\n- Decisions and action items\n- Governance records and escalation notes\n\n**Stakeholders**\n- Steering Committee\n- Change Control Board\n- Product Owners/Business Owners\n- Risk and Compliance\n- EA governance bodies\n\n**Enabling Technologies and Tools**\n- Issue tracking system\n- Survey tools\n- Collaboration spaces\n\n**Alignment with Industry Standards and Frameworks**\n- PMBOK Stakeholder Engagement\n- Decision rights frameworks\n- RACI/RASCI\n- TOGAF Governance",
+    "parent": "a8805a45-e824-4396-9ad5-85e88774560e",
+    "capability": 0
+  },
+  {
+    "id": "87eda401-ce97-4529-a5d9-cbdc27c636d8",
+    "name": "Architecture Standards and Policy Lifecycle",
+    "description": "Define, maintain, and retire architecture standards and policies to govern solution architectures and technology choices across the organization. Establish a formal lifecycle for standards, including creation, versioning, approval, and sunset, to ensure currency and enforceability.\n\nOutcomes include consistent decision-making, improved traceability to business strategy, and reduced policy drift across programs. Aligns with the Enterprise Architecture CoE objectives and provides actionable guidance for projects and platforms.\n\n**Inputs**\n- Business strategy and goals\n- Current architecture standards and policies\n- Compliance and regulatory requirements\n- Architecture decision records\n- Stakeholder feedback\n\n**Outputs**\n- Updated standards and policies\n- Policy lifecycle artifacts (version history)\n- Guidance for project design and solution architectures\n- Exceptions pipeline\n\n**Stakeholders**\n- Enterprise Architecture CoE\n- Architecture Review Board\n- Portfolio/PMO\n- Solution and Enterprise Architects\n- Compliance and Risk\n\n**Enabling Technologies and Tools**\n- Policy management tool or standards repository\n- Collaboration and approval workflow platform\n\n**Alignment with Industry Standards and Frameworks**\n- TOGAF principles and standards\n- ISO/IEC 42010 architecture descriptions\n- Banking regulatory controls and internal control frameworks",
+    "parent": "e9f98376-5fe6-4dc0-911c-3f937e54ef77",
+    "capability": 0
+  },
+  {
+    "id": "44b3b627-3310-4083-a7e7-6a2d513e62a8",
+    "name": "Policy Enforcement and Compliance Management",
+    "description": "Implement mechanisms to monitor adherence to architecture standards and enforce compliance across projects, solutions, and technology platforms. Establish a formal exception mechanism and remediation workflow to balance control with delivery velocity.\n\nOutcomes include auditable controls, faster risk remediation, and consistent architectural quality. This capability supports risk management and ensures governance remains effective as the portfolio evolves.\n\n**Inputs**\n- Architecture standards and policies\n- Project designs and solution architectures\n- Compliance requirements and regulatory controls\n- Exception requests and approval records\n- Audit findings and risk data\n\n**Outputs**\n- Compliance dashboards and reports\n- Approved exceptions with remediation plans\n- Non-compliance remediation actions\n- Audit trails and evidence\n\n**Stakeholders**\n- Architecture Review Board\n- Compliance and Risk\n- Project/Program management\n- IT Security and Risk\n- Internal Audit\n\n**Enabling Technologies and Tools**\n- Compliance management tool\n- Audit trail system and issue-tracking\n\n**Alignment with Industry Standards and Frameworks**\n- COBIT 2019 governance framework\n- ISO/IEC 27001/27002 information security controls\n- Banking regulatory controls and supervisory expectations (e.g., Basel II/III) as applicable",
+    "parent": "e9f98376-5fe6-4dc0-911c-3f937e54ef77",
+    "capability": 0
+  },
+  {
+    "id": "39a3000b-aed9-4ab7-b246-907c0a5c9d97",
+    "name": "Governance Operating Model, Reviews, and Decision Rights",
+    "description": "Define the architecture governance operating model, including roles, committees (e.g., Architecture Review Board), decision rights, and meeting cadences. Ensure effective end-to-end governance across the project lifecycle.\n\nOutcomes: consistent governance processes, timely decisions, and clear accountability. Aligns governance with business priorities and enables scalable decision-making across the portfolio.\n\n**Inputs**\n- Architecture standards and policies\n- Portfolio and program plans\n- Architecture artifacts and decision records\n- Stakeholder mapping and RACI\n\n**Outputs**\n- Governance playbooks and decision logs\n- ARB meeting minutes and decisions\n- Escalation and exception handling guidelines\n\n**Stakeholders**\n- Architecture Review Board\n- EA CoE leadership\n- Portfolio/PMO\n- Program/project teams\n- Risk and Compliance\n\n**Enabling Technologies and Tools**\n- Governance workflow and approval system\n- Collaboration platform for ARB\n\n**Alignment with Industry Standards and Frameworks**\n- TOGAF governance framework components\n- COBIT 2019 governance and management objectives\n- ITIL governance alignment",
+    "parent": "e9f98376-5fe6-4dc0-911c-3f937e54ef77",
+    "capability": 0
+  },
+  {
+    "id": "3d868d54-61ef-42fd-9fa3-2bbbd8da9832",
+    "name": "Roadmap Content Definition and Prioritization",
+    "description": "Define and capture architectural initiatives to populate a backlog of roadmap items, ensuring proposals map to strategy, architectural standards, and available resources.\n\nProduce a prioritized roadmap with sequencing guidance that enables transparent decisioning, value realization, and ongoing alignment with business goals and EA governance.\n\n**Inputs**\n- Strategic objectives and priorities\n- Initiative proposals and supporting business cases\n- Current architecture baseline and constraints\n- Budget and resource assumptions\n- Inputs from technology assessment and EA artifacts\n\n**Outputs**\n- Prioritized roadmap items with value propositions\n- Backlog with sequencing guidance\n- Alignment notes and rationale\n- Roadmap baseline for review\n\n**Stakeholders**\n- Enterprise Strategy\n- Portfolio Management\n- Architecture team and capability owners\n- Delivery and Program Management\n\n**Enabling Technologies and Tools**\n- Idea management and prioritization tools\n- Roadmap or portfolio management platforms\n- Analytics and scoring tools\n\n**Alignment with Industry Standards and Frameworks**\n- TOGAF, SAFe, and equivalent governance and portfolio prioritization references\n- Enterprise architecture practice standards",
+    "parent": "6d07d0a8-3f0c-4543-9e75-04864d07b15d",
+    "capability": 0
+  },
+  {
+    "id": "1d2d4dc3-0f5c-493c-8b38-d4e389ce94b5",
+    "name": "Roadmap Planning, Sequencing, and Dependency Management",
+    "description": "Translate the prioritized content into a time-bound plan by sequencing initiatives, mapping dependencies, and aligning with delivery capacity, budget, and risk tolerance.\n\nDeliver a validated schedule with milestones, resource plans, and clear interdependencies to improve predictability, coordination, and value realization.\n\n**Inputs**\n- Prioritized roadmap\n- Dependency map and relationships\n- Capacity constraints and budget envelopes\n- Milestones and release windows\n- Risk and mitigation plans\n\n**Outputs**\n- Roadmap timeline and milestone plan\n- Resource plan and capacity alignment\n- Dependency map and risk visibility\n- Baseline for governance reviews\n\n**Stakeholders**\n- Delivery Planning\n- Portfolio Management\n- Finance\n- Architecture team\n\n**Enabling Technologies and Tools**\n- Roadmap planning tools and dependency tracking\n- Program management platforms\n- Resource scheduling and analytics tools\n\n**Alignment with Industry Standards and Frameworks**\n- SAFe, TOGAF, PMBOK guidance on scheduling and governance\n- Industry-standard portfolio planning references",
+    "parent": "6d07d0a8-3f0c-4543-9e75-04864d07b15d",
+    "capability": 0
+  },
+  {
+    "id": "ef59a64c-91d2-4c7d-8310-d05db2775608",
+    "name": "Roadmap Communication, Alignment, and Change Control",
+    "description": "Communicate the roadmap outcomes, decisions, and implications to leadership and key stakeholders to secure alignment and formal sign-off. Establish change control and governance to manage ongoing updates.\n\nFoster transparency, enable informed decision-making, and sustain commitment to the roadmap across the organization.\n\n**Inputs**\n- Roadmap document and baseline\n- Communications plan\n- Change requests\n- Governance decisions\n\n**Outputs**\n- Approved roadmap\n- Stakeholder sign-offs\n- Change log\n- Communications artifacts\n\n**Stakeholders**\n- Leadership\n- Program/Project Management\n- Portfolio Management\n- EA CoE / Communications\n\n**Enabling Technologies and Tools**\n- Roadmap communication platforms\n- Collaboration tools and document sharing\n\n**Alignment with Industry Standards and Frameworks**\n- Stakeholder engagement and governance standards (PMI, TOGAF ADM)\n- Best practices for enterprise-wide communication",
+    "parent": "6d07d0a8-3f0c-4543-9e75-04864d07b15d",
+    "capability": 0
+  },
+  {
+    "id": "3aca859f-e761-4f6a-9d32-5d591d62c2c1",
+    "name": "Maturity Measurement Framework Design",
+    "description": "Design and maintain a scalable maturity measurement framework for architectural practices to enable consistent, objective assessments across EA domains and over time.\n\nProvide standardized scoring, governance, and guidance to ensure repeatable assessments, actionable insights, and alignment with strategic capability maturity goals.\n\n**Inputs**\n- Strategic EA objectives and target maturity goals\n- Reference maturity models or frameworks (if any)\n- Data collection methods, templates, and evidence sources\n- Assessment governance and stakeholder roster\n\n**Outputs**\n- Maturity measurement framework document with scoring criteria\n- Validated assessment protocol and cadence\n- Governance plan and ownership assignments\n- Baseline and target state alignment guidance\n\n**Stakeholders**\n- Enterprise Architecture Leadership\n- Capability Owners and Domain Leads\n- Assessment Program Manager\n- Data & Analytics / Information Management\n- Compliance and Risk stakeholders\n\n**Enabling Technologies and Tools**\n- Online survey and data collection platform\n- Data repository and analytics tooling\n- Modeling and visualization tools for maturity dashboards\n\n**Alignment with Industry Standards and Frameworks**\n- TOGAF Architecture Maturity guidance\n- COBIT 2019 governance and capability improvement references\n- ArchiMate-based representation for maturity levels",
+    "parent": "f5873c33-06e8-45fe-addf-cdfc5ebc4390",
+    "capability": 0
+  },
+  {
+    "id": "01494785-a4e2-481a-be49-d1096d7d5ec6",
+    "name": "Current State Maturity Assessment and Gap Analysis",
+    "description": "Conduct a comprehensive assessment of the current architectural practices against the established maturity framework, collecting evidence through interviews, document reviews, and artifact analysis.\n\nProduce baseline maturity scores, identify gaps and risks, and deliver actionable findings that inform target-state planning and prioritization.\n\n**Inputs**\n- Mature framework and scoring criteria\n- Current-state data and artifacts\n- Interview guides and survey instruments\n- Stakeholder contacts and access rights\n\n**Outputs**\n- Current-state maturity report\n- Gap analysis with prioritized recommendations\n- Baseline metrics and dashboards\n- Executive summary and sponsor sign-off\n\n**Stakeholders**\n- Capability Owners\n- EA Practice Leads\n- PMO / Portfolio Managers\n- Risk and Compliance\n- Business Sponsors\n\n**Enabling Technologies and Tools**\n- Survey and interview tooling\n- Data extraction and analytics platform\n- Collaboration and document management tools\n\n**Alignment with Industry Standards and Frameworks**\n- TOGAF ADM phases alignment\n- COBIT 2019 process reference model\n- ArchiMate-based evidence and representation",
+    "parent": "f5873c33-06e8-45fe-addf-cdfc5ebc4390",
+    "capability": 0
+  },
+  {
+    "id": "68843ddb-2ddd-4ccc-a6a3-c6cf99e963d7",
+    "name": "Target State Definition and Improvement Roadmap for Architectural Practices",
+    "description": "Define target maturity levels by domain, connect measurable goals to gaps, and translate improvements into a prioritized backlog.\n\nDevelop a time-bound roadmap aligned to strategy and budgets, enabling controlled, value-driven maturity advancement with clear ownership and governance.\n\n**Inputs**\n- Current-state maturity results\n- Target maturity levels per domain\n- Strategic EA roadmap and funding constraints\n- Improvement initiatives backlog (initial)\n\n**Outputs**\n- Target maturity model with domain-specific goals\n- Prioritized improvement backlog\n- Roadmap plan with milestones, owners, and budgets\n- Risk and mitigation plan\n\n**Stakeholders**\n- EA Strategy Lead\n- Capability Owners\n- PMO / Portfolio Management\n- Architecture Governance Board\n- Investment Committee\n\n**Enabling Technologies and Tools**\n- Roadmapping and portfolio analytics tools\n- Collaboration platform\n- Data integration for progress tracking\n\n**Alignment with Industry Standards and Frameworks**\n- TOGAF 9.x Architecture Maturity guidance\n- COBIT 2019 governance and improvement guidance\n- ArchiMate-based mapping of target states",
+    "parent": "f5873c33-06e8-45fe-addf-cdfc5ebc4390",
+    "capability": 0
+  }
+]

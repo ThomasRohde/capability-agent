@@ -106,11 +106,13 @@ def call_openai(client: OpenAI, system_message: str, user_prompt: str, max_items
     except TypeError as e:
         # Older SDKs may not support response_format on Responses API; retry without it
         if "response_format" in str(e):
+            # Append JSON format instruction to ensure JSON output when structured output fails
+            json_instruction = "\n\nIMPORTANT: Return ONLY a JSON array with objects containing 'name' and 'description' fields. Example: [{\"name\": \"...\", \"description\": \"...\"}]"
             try:
                 resp = client.responses.create(
                     model=model,
                     # temperature=0.3,
-                    instructions=system_message,
+                    instructions=system_message + json_instruction,
                     input=user_prompt,
                 )
             except Exception as e2:  # noqa: BLE001
@@ -159,6 +161,12 @@ def call_openai(client: OpenAI, system_message: str, user_prompt: str, max_items
             raise LLMError("Each generated item must be an object.")
         name = item.get("name")
         desc = item.get("description")
+        
+        # Check if parent field is present (shouldn't be, but might cause confusion)
+        if "parent" in item:
+            # Ignore parent field but log warning for debugging
+            pass  # Parent should not be in LLM output
+        
         if not isinstance(name, str) or not isinstance(desc, str):
             raise LLMError("Each item must have string 'name' and 'description' fields.")
         items.append({"name": name, "description": desc})
