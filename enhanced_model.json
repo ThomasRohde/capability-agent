@@ -7,38 +7,213 @@
     "capability": 0
   },
   {
-    "id": "daf2a71c-c8a9-4409-84d4-a6210cd70356",
+    "id": "e9f98376-5fe6-4dc0-911c-3f937e54ef77",
     "name": "Architecture Governance",
     "description": "Establish and enforce architecture standards and policies.",
     "parent": "ae3e6fa9-5789-4181-8a3a-738565742c55",
     "capability": 0
   },
   {
-    "id": "a38af62a-2278-4797-af88-5bda2d85e5d3",
+    "id": "de0629b3-0db1-48de-9073-e610b78667d4",
     "name": "Technology Assessment",
-    "description": "Evaluate and recommend technologies to support business needs.",
+    "description": "Evaluate and recommend technologies aligned with business goals.",
     "parent": "ae3e6fa9-5789-4181-8a3a-738565742c55",
     "capability": 0
   },
   {
-    "id": "38f62917-ec93-4d41-84d7-f0d49d3d2fda",
-    "name": "Portfolio Management",
-    "description": "Manage and prioritize architecture initiatives and projects.",
+    "id": "6d07d0a8-3f0c-4543-9e75-04864d07b15d",
+    "name": "Roadmap Development",
+    "description": "Create and maintain a strategic roadmap for architecture initiatives.",
     "parent": "ae3e6fa9-5789-4181-8a3a-738565742c55",
     "capability": 0
   },
   {
-    "id": "c4981f32-9431-4ca4-9790-4b021a7bb2c4",
+    "id": "a8805a45-e824-4396-9ad5-85e88774560e",
     "name": "Stakeholder Engagement",
-    "description": "Facilitate communication and collaboration with business stakeholders.",
+    "description": "Facilitate communication and collaboration among stakeholders.",
     "parent": "ae3e6fa9-5789-4181-8a3a-738565742c55",
     "capability": 0
   },
   {
-    "id": "7e6e682b-3484-4878-8d30-af51f02c400b",
-    "name": "Training and Enablement",
-    "description": "Provide training programs to enhance architectural skills across the organization.",
+    "id": "f5873c33-06e8-45fe-addf-cdfc5ebc4390",
+    "name": "Capability Maturity Assessment",
+    "description": "Assess and improve the maturity of architectural practices.",
     "parent": "ae3e6fa9-5789-4181-8a3a-738565742c55",
+    "capability": 0
+  },
+  {
+    "id": "cd46e10a-7146-465b-aa73-d1040213a9fd",
+    "name": "Policy Development",
+    "description": "Draft and update architecture policies to ensure compliance.",
+    "parent": "e9f98376-5fe6-4dc0-911c-3f937e54ef77",
+    "capability": 0
+  },
+  {
+    "id": "3493e7a3-c237-429a-a1f0-365e75a8a08e",
+    "name": "Standards Enforcement",
+    "description": "Monitor adherence to architecture standards across projects.",
+    "parent": "e9f98376-5fe6-4dc0-911c-3f937e54ef77",
+    "capability": 0
+  },
+  {
+    "id": "8e422934-2e87-4798-a68d-1d44138fde7b",
+    "name": "Risk Assessment",
+    "description": "Identify and evaluate risks associated with architectural decisions.",
+    "parent": "e9f98376-5fe6-4dc0-911c-3f937e54ef77",
+    "capability": 0
+  },
+  {
+    "id": "47d6190d-3a61-42d2-acca-e5c757ae2a66",
+    "name": "Compliance Auditing",
+    "description": "Conduct audits to verify compliance with architecture governance.",
+    "parent": "e9f98376-5fe6-4dc0-911c-3f937e54ef77",
+    "capability": 0
+  },
+  {
+    "id": "0dcf0d9f-688b-4d47-9f78-a412042fa5d6",
+    "name": "Training and Awareness",
+    "description": "Provide training sessions to promote understanding of architecture standards.",
+    "parent": "e9f98376-5fe6-4dc0-911c-3f937e54ef77",
+    "capability": 0
+  },
+  {
+    "id": "cc55619f-6907-4ba0-801c-b34356bd8d53",
+    "name": "Technology Scouting",
+    "description": "Identify emerging technologies that could enhance business operations.",
+    "parent": "de0629b3-0db1-48de-9073-e610b78667d4",
+    "capability": 0
+  },
+  {
+    "id": "019a5553-fe95-441e-9784-1cc37b628ffc",
+    "name": "Vendor Evaluation",
+    "description": "Assess and compare technology vendors based on business needs.",
+    "parent": "de0629b3-0db1-48de-9073-e610b78667d4",
+    "capability": 0
+  },
+  {
+    "id": "ae7cc1bc-2cb7-403c-823f-d13d29924961",
+    "name": "Technology Alignment",
+    "description": "Ensure selected technologies align with strategic business objectives.",
+    "parent": "de0629b3-0db1-48de-9073-e610b78667d4",
+    "capability": 0
+  },
+  {
+    "id": "9ffb0d2d-5798-457b-8bc6-6cadcf943aa9",
+    "name": "Cost-Benefit Analysis",
+    "description": "Evaluate the financial implications of adopting new technologies.",
+    "parent": "de0629b3-0db1-48de-9073-e610b78667d4",
+    "capability": 0
+  },
+  {
+    "id": "229b916d-254c-4037-afaf-64b7c932e6cd",
+    "name": "Implementation Planning",
+    "description": "Develop actionable plans for integrating new technologies into existing systems.",
+    "parent": "de0629b3-0db1-48de-9073-e610b78667d4",
+    "capability": 0
+  },
+  {
+    "id": "ba0daf81-759b-45c2-96c3-8e0349ccd917",
+    "name": "Roadmap Prioritization",
+    "description": "Identify and prioritize architecture initiatives based on strategic goals.",
+    "parent": "6d07d0a8-3f0c-4543-9e75-04864d07b15d",
+    "capability": 0
+  },
+  {
+    "id": "301d28be-916d-4316-8a2d-5b5bcd2e7bf5",
+    "name": "Roadmap Communication",
+    "description": "Disseminate the strategic roadmap to stakeholders for alignment and awareness.",
+    "parent": "6d07d0a8-3f0c-4543-9e75-04864d07b15d",
+    "capability": 0
+  },
+  {
+    "id": "0cf56fd4-72ca-4198-a806-50e91d942390",
+    "name": "Roadmap Review",
+    "description": "Regularly assess and update the roadmap to reflect changing business needs.",
+    "parent": "6d07d0a8-3f0c-4543-9e75-04864d07b15d",
+    "capability": 0
+  },
+  {
+    "id": "f5bdd8f8-7d27-4b8d-8777-66c3c5f9ce50",
+    "name": "Roadmap Integration",
+    "description": "Ensure alignment of the roadmap with other enterprise strategies and initiatives.",
+    "parent": "6d07d0a8-3f0c-4543-9e75-04864d07b15d",
+    "capability": 0
+  },
+  {
+    "id": "50f3e7f0-e569-477c-9787-96bfc529f442",
+    "name": "Roadmap Performance Tracking",
+    "description": "Monitor and evaluate the progress of initiatives outlined in the roadmap.",
+    "parent": "6d07d0a8-3f0c-4543-9e75-04864d07b15d",
+    "capability": 0
+  },
+  {
+    "id": "2f6f0ca4-9b2a-4167-8d53-1eda48d88e36",
+    "name": "Stakeholder Mapping",
+    "description": "Identify and categorize stakeholders based on influence and interest.",
+    "parent": "a8805a45-e824-4396-9ad5-85e88774560e",
+    "capability": 0
+  },
+  {
+    "id": "cb766b0b-f613-4278-8577-111dba7fdbd3",
+    "name": "Feedback Collection",
+    "description": "Gather input and feedback from stakeholders to inform decisions.",
+    "parent": "a8805a45-e824-4396-9ad5-85e88774560e",
+    "capability": 0
+  },
+  {
+    "id": "0a2dc1df-4913-4868-8912-c37499a0e540",
+    "name": "Collaboration Tools Management",
+    "description": "Implement and maintain tools that facilitate stakeholder collaboration.",
+    "parent": "a8805a45-e824-4396-9ad5-85e88774560e",
+    "capability": 0
+  },
+  {
+    "id": "5e85c6bd-830a-492b-a30d-a987f857989a",
+    "name": "Engagement Strategy Development",
+    "description": "Create strategies to enhance stakeholder engagement and participation.",
+    "parent": "a8805a45-e824-4396-9ad5-85e88774560e",
+    "capability": 0
+  },
+  {
+    "id": "1115332a-d796-4d2c-b678-9dff2f2e8b50",
+    "name": "Conflict Resolution",
+    "description": "Address and resolve conflicts among stakeholders to maintain collaboration.",
+    "parent": "a8805a45-e824-4396-9ad5-85e88774560e",
+    "capability": 0
+  },
+  {
+    "id": "037d43a7-a753-4df6-93fb-fcbdcefd8ec4",
+    "name": "Maturity Evaluation",
+    "description": "Conduct assessments to determine current maturity levels of architectural practices.",
+    "parent": "f5873c33-06e8-45fe-addf-cdfc5ebc4390",
+    "capability": 0
+  },
+  {
+    "id": "b9a1d4ff-a80d-4272-a532-5f0a7a0c1faf",
+    "name": "Improvement Planning",
+    "description": "Develop actionable plans to enhance architectural maturity based on assessment findings.",
+    "parent": "f5873c33-06e8-45fe-addf-cdfc5ebc4390",
+    "capability": 0
+  },
+  {
+    "id": "9788fcbe-89f8-410c-baaa-22328c6febaa",
+    "name": "Benchmarking",
+    "description": "Compare architectural practices against industry standards and best practices.",
+    "parent": "f5873c33-06e8-45fe-addf-cdfc5ebc4390",
+    "capability": 0
+  },
+  {
+    "id": "6784fe1c-21f8-4ee9-839d-1c7d1c77ea09",
+    "name": "Training Development",
+    "description": "Create training programs to elevate skills and knowledge in architectural practices.",
+    "parent": "f5873c33-06e8-45fe-addf-cdfc5ebc4390",
+    "capability": 0
+  },
+  {
+    "id": "6c9eb7ae-b4aa-42ff-a093-ba15bf712b2e",
+    "name": "Feedback Mechanism",
+    "description": "Establish processes to gather and incorporate feedback on architectural maturity improvements.",
+    "parent": "f5873c33-06e8-45fe-addf-cdfc5ebc4390",
     "capability": 0
   }
 ]

@@ -5,5 +5,40 @@
     "description": "An EA Center of Excellence in a large banking organization.",
     "parent": null,
     "capability": 0
+  },
+  {
+    "id": "e9f98376-5fe6-4dc0-911c-3f937e54ef77",
+    "name": "Architecture Governance",
+    "description": "Establish and enforce architecture standards and policies.",
+    "parent": "ae3e6fa9-5789-4181-8a3a-738565742c55",
+    "capability": 0
+  },
+  {
+    "id": "de0629b3-0db1-48de-9073-e610b78667d4",
+    "name": "Technology Assessment",
+    "description": "Evaluate and recommend technologies aligned with business goals.",
+    "parent": "ae3e6fa9-5789-4181-8a3a-738565742c55",
+    "capability": 0
+  },
+  {
+    "id": "6d07d0a8-3f0c-4543-9e75-04864d07b15d",
+    "name": "Roadmap Development",
+    "description": "Create and maintain a strategic roadmap for architecture initiatives.",
+    "parent": "ae3e6fa9-5789-4181-8a3a-738565742c55",
+    "capability": 0
+  },
+  {
+    "id": "a8805a45-e824-4396-9ad5-85e88774560e",
+    "name": "Stakeholder Engagement",
+    "description": "Facilitate communication and collaboration among stakeholders.",
+    "parent": "ae3e6fa9-5789-4181-8a3a-738565742c55",
+    "capability": 0
+  },
+  {
+    "id": "f5873c33-06e8-45fe-addf-cdfc5ebc4390",
+    "name": "Capability Maturity Assessment",
+    "description": "Assess and improve the maturity of architectural practices.",
+    "parent": "ae3e6fa9-5789-4181-8a3a-738565742c55",
+    "capability": 0
   }
 ]

@@ -27,7 +27,7 @@ def run(
     context_level: Optional[str] = typer.Option(None, help="Comma-separated context: full_tree,parent,siblings"),
 ):
     """Augment INPUT model and write enhanced OUTPUT as JSON array."""
-    console.print(Panel.fit("business-capgen: augmenting capability model", title="capability-agent"))
+    console.print(Panel.fit("business-capgen: Augmenting capability model", title="capability-agent"))
 
     try:
         data = read_json_file(input)
