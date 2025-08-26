@@ -40,7 +40,7 @@ def run(
         dir_okay=True,
         writable=True,
     ),
-    streaming: bool = typer.Option(False, "--streaming", help="Use streaming API for real-time progress"),
+    streaming: bool = typer.Option(False, "--streaming", help="Use streaming API for real-time progress (requires --tasks 1)"),
 ):
     """Augment INPUT model and write enhanced OUTPUT as JSON array."""
     console.print(Panel.fit("business-capgen: Augmenting capability model", title="capability-agent"))
@@ -66,6 +66,11 @@ def run(
 
     # Resolve log prompts directory
     log_dir: Optional[Path] = log_prompts
+
+    # Validate streaming configuration
+    if streaming and tasks > 1:
+        console.print("Warning: Streaming requires --tasks 1. Setting tasks=1 automatically.", style="info")
+        tasks = 1
 
     try:
         enhanced = augment_model(

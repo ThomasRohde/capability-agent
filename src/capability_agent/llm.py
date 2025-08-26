@@ -1,12 +1,18 @@
 from __future__ import annotations
 
+import json
 import os
+import re
 from typing import Dict, List, Optional
 
 from openai import OpenAI
 from pydantic import BaseModel, Field, RootModel
 from rich.console import Console
+from rich.live import Live
+from rich.panel import Panel
 from rich.progress import Progress, SpinnerColumn, TextColumn
+from rich.table import Table
+from rich.text import Text
 
 
 class LLMError(Exception):
@@ -86,23 +92,63 @@ def call_openai(client: OpenAI, system_message: str, user_prompt: str, max_items
     return items
 
 
+def _extract_capabilities_from_partial_json(partial_json: str) -> List[Dict[str, str]]:
+    """Extract completed capability items from partial JSON response."""
+    capabilities = []
+    
+    # Look for complete items in the JSON
+    # Match pattern: {"name":"...", "description":"..."}
+    item_pattern = r'\{"name":\s*"([^"]+)",\s*"description":\s*"([^"]+)"\}'
+    matches = re.findall(item_pattern, partial_json)
+    
+    for name, description in matches:
+        capabilities.append({"name": name, "description": description})
+    
+    return capabilities
+
+
+def _create_capabilities_display(capabilities: List[Dict[str, str]], leaf_name: str) -> Panel:
+    """Create a rich display for streaming capabilities."""
+    if not capabilities:
+        return Panel(
+            Text("Generating capabilities...", style="italic cyan"),
+            title=f"[bold blue]{leaf_name}[/bold blue]",
+            border_style="blue"
+        )
+    
+    table = Table(show_header=False, box=None, padding=(0, 1))
+    table.add_column("Name", style="bold green", width=30)
+    table.add_column("Description", style="white")
+    
+    for cap in capabilities:
+        table.add_row(
+            cap["name"],
+            cap["description"][:80] + "..." if len(cap["description"]) > 80 else cap["description"]
+        )
+    
+    return Panel(
+        table,
+        title=f"[bold blue]{leaf_name}[/bold blue] - {len(capabilities)} capabilities",
+        border_style="green"
+    )
+
+
 def call_openai_streaming(
     client: OpenAI, 
     system_message: str, 
     user_prompt: str, 
     max_items: int,
-    show_progress: bool = True
+    show_progress: bool = True,
+    leaf_name: str = ""
 ) -> List[Dict[str, str]]:
-    """Call OpenAI Responses API with streaming support.
+    """Call OpenAI Responses API with streaming support and live capability display.
     
-    Uses Responses API with structured outputs and provides real-time progress.
+    Uses Responses API with structured outputs and shows capabilities as they're generated.
     """
     model = os.getenv("OPENAI_MODEL") or "gpt-4o-2024-08-06"
     console = Console()
     
     try:
-        items_collected = []
-        
         with client.responses.stream(
             model=model,
             input=user_prompt,
@@ -111,24 +157,36 @@ def call_openai_streaming(
             # temperature=0.3,  # Uncomment if needed
         ) as stream:
             if show_progress:
-                with Progress(
-                    SpinnerColumn(),
-                    TextColumn("[progress.description]{task.description}"),
+                partial_content = ""
+                last_capabilities = []
+                
+                with Live(
+                    _create_capabilities_display([], leaf_name),
                     console=console,
-                    transient=True,
-                ) as progress:
-                    task = progress.add_task("Generating capabilities...", total=None)
-                    
+                    refresh_per_second=4,
+                    transient=True
+                ) as live:
                     for event in stream:
                         if event.type == "response.refusal.delta":
                             raise LLMError(f"Model refused: {event.delta}")
                         elif event.type == "response.output_text.delta":
-                            # Update progress with partial content
-                            progress.update(task, description=f"Generating capabilities... (streaming)")
+                            # Accumulate partial content
+                            partial_content += event.delta
+                            
+                            # Extract capabilities from partial JSON
+                            capabilities = _extract_capabilities_from_partial_json(partial_content)
+                            
+                            # Update display if we have new capabilities
+                            if capabilities != last_capabilities:
+                                live.update(_create_capabilities_display(capabilities, leaf_name))
+                                last_capabilities = capabilities
+                                
                         elif event.type == "response.error":
                             raise LLMError(f"Stream error: {event.error}")
                         elif event.type == "response.completed":
-                            progress.update(task, description="Capabilities generated!")
+                            # Final update
+                            final_capabilities = _extract_capabilities_from_partial_json(partial_content)
+                            live.update(_create_capabilities_display(final_capabilities, leaf_name))
             else:
                 # No progress display
                 for event in stream:
@@ -144,6 +202,7 @@ def call_openai_streaming(
                 raise LLMError("No parsed output received from streaming")
             
             # Convert to expected format and limit items
+            items_collected = []
             for item in final_response.output_parsed.items[:max_items]:
                 items_collected.append({
                     "name": item.name,

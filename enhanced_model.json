@@ -7,45 +7,269 @@
     "capability": 0
   },
   {
-    "id": "16b166a6-16c6-4d06-8ecf-0ea1d34be11d",
-    "name": "Architecture Governance",
-    "description": "This sub-capability ensures that all enterprise architecture frameworks, standards, and practices are consistently applied across the organization. It establishes control mechanisms to review and approve architectural decisions, aligning them with strategic objectives.\n\nBy managing compliance and adherence to architectural principles, this sub-capability helps to mitigate risks and ensure that projects align with the bank's strategic goals.\n\n**Inputs**\n- Strategic objectives\n- Architectural principles\n\n**Outputs**\n- Governance frameworks\n- Compliance reports\n\n**Stakeholders**\n- Enterprise architects\n- Governance board",
+    "id": "d751c338-8d87-4703-a3e8-232bca37f38b",
+    "name": "Architecture Governance and Compliance",
+    "description": "This sub-capability focuses on establishing governance frameworks to ensure architectural compliance across the organization. It defines policies, standards, and practices to guide the execution of enterprise architecture initiatives.\n\nSuccessful implementation results in consistent adherence to architectural principles, enhancing the overall quality and sustainability of IT solutions. This aligns with the strategic intent of the Enterprise Architecture CoE by embedding compliance in all architectural processes.\n\n**Inputs**\n- Enterprise architecture policies\n- Compliance requirements\n\n**Outputs**\n- Governance frameworks\n- Compliance reports\n\n**Stakeholders**\n- Chief Information Officer\n- Regulatory bodies\n\n**Alignment with Industry Standards and Frameworks**\n- TOGAF\n- COBIT",
     "parent": "ae3e6fa9-5789-4181-8a3a-738565742c55",
     "capability": 0
   },
   {
-    "id": "73c48779-4cac-4bb5-ace5-5f5f1d2a2142",
-    "name": "Technology Roadmapping",
-    "description": "This sub-capability focuses on developing and maintaining technology roadmaps that guide the strategic use of technology in the bank. It aligns IT initiatives with business priorities, ensuring that technology investments support long-term goals.\n\nBy providing a forward-looking view of technology trends and developments, this sub-capability enables the organization to make informed decisions about future technology needs.\n\n**Inputs**\n- Business strategies\n- Current technology landscape\n\n**Outputs**\n- Technology roadmaps\n- Investment proposals\n\n**Stakeholders**\n- IT leadership\n- Business unit heads",
+    "id": "62be48d3-5b1c-43cc-8cc7-8e25d7adf682",
+    "name": "Architecture Design and Planning",
+    "description": "This capability involves creating comprehensive architecture designs and plans that align with business strategies. It defines the architectural blueprints and roadmaps necessary for successful implementation of enterprise initiatives.\n\nBy delivering holistic and strategic designs, this capability ensures alignment of IT assets with business goals, fostering consistent and efficient enterprise operations.\n\n**Inputs**\n- Business strategy documents\n- Existing IT infrastructure\n\n**Outputs**\n- Architecture blueprints\n- Roadmaps\n\n**Stakeholders**\n- IT architects\n- Business unit leaders\n\n**Enabling Technologies and Tools**\n- Architecture modeling tools",
     "parent": "ae3e6fa9-5789-4181-8a3a-738565742c55",
     "capability": 0
   },
   {
-    "id": "a8a0647d-f6c8-4e25-bbf1-26a74ed2ff12",
-    "name": "Solution Architecture",
-    "description": "This sub-capability involves designing and overseeing the implementation of architecture solutions that align with the enterprise's strategic goals. It ensures that each solution is efficient, scalable, and robust.\n\nBy bridging the gap between business needs and technical solutions, this sub-capability ensures that projects deliver value while adhering to architectural standards.\n\n**Inputs**\n- Business requirements\n- Technical standards\n\n**Outputs**\n- Solution designs\n- Architectural blueprints\n\n**Stakeholders**\n- Business analysts\n- Development teams",
+    "id": "f7d0d995-361f-44a1-8c34-8fba36c767c8",
+    "name": "Technology Evaluation and Selection",
+    "description": "This sub-capability provides structured processes for evaluating and selecting technology solutions that meet enterprise architecture requirements. It focuses on ensuring that new technologies align with strategic objectives and provide cohesive integration.\n\nOutcomes include optimized technology portfolios that support long-term organizational growth, minimizing technical debt and maximizing technology ROI.\n\n**Inputs**\n- Technology requirements\n- Vendor proposals\n\n**Outputs**\n- Technology evaluations\n- Selection recommendations\n\n**Stakeholders**\n- Procurement teams\n- IT strategy team",
     "parent": "ae3e6fa9-5789-4181-8a3a-738565742c55",
     "capability": 0
   },
   {
-    "id": "3d0fdd27-23ef-4097-b966-d4084ef0cb8a",
-    "name": "Architecture Knowledge Management",
-    "description": "This sub-capability focuses on capturing, managing, and sharing architectural knowledge across the enterprise. It builds a repository of architectural artefacts and best practices to support decision-making and accelerate project delivery.\n\nThrough effective knowledge management, this sub-capability helps maintain consistency and continuity in architectural practices across the organization.\n\n**Inputs**\n- Architectural artefacts\n- Best practices\n\n**Outputs**\n- Knowledge repositories\n- Best practice guidelines\n\n**Stakeholders**\n- Enterprise architects\n- Project managers",
+    "id": "77986939-dd6c-472b-8a0a-6bc3c0bd8a66",
+    "name": "Architectural Change Management",
+    "description": "This capability oversees the management of architectural changes, ensuring that modifications align with the established architecture strategy. It balances agility with stability by managing change impacts across the architecture landscape.\n\nEffective change management maintains architectural coherence and minimizes risk, contributing to the overall resilience of enterprise operations.\n\n**Inputs**\n- Change requests\n- Impact analysis reports\n\n**Outputs**\n- Change management plans\n- Updated architecture documentation\n\n**Stakeholders**\n- Change management board\n- Project management office",
     "parent": "ae3e6fa9-5789-4181-8a3a-738565742c55",
     "capability": 0
   },
   {
-    "id": "0bd3a4a5-9962-4102-b56c-4572ae348cf7",
-    "name": "Standards and Frameworks Development",
-    "description": "This sub-capability establishes and maintains architectural standards and frameworks that guide IT and business alignment. It involves defining principles, guidelines, and policies to ensure consistency and efficiency in architectural practices.\n\nBy developing standards and frameworks, this sub-capability promotes interoperability and agility across IT solutions, aligning them with business needs.\n\n**Inputs**\n- Industry best practices\n- Regulatory requirements\n\n**Outputs**\n- Architectural standards\n- Policy documents\n\n**Stakeholders**\n- Compliance teams\n- Architecture committees",
+    "id": "bbef1890-ea66-4375-ba18-4496a37ee88e",
+    "name": "Knowledge and Skills Development",
+    "description": "This sub-capability focuses on developing the skills and knowledge necessary for enterprise architecture practices. It includes training programs, certifications, and continuous learning initiatives to ensure proficiency across the architecture team.\n\nCultivating a skilled architecture team supports the maturity of the EA CoE, enabling the organization to efficiently adapt to evolving business and technology landscapes.\n\n**Inputs**\n- Current skill assessments\n- Training needs analysis\n\n**Outputs**\n- Training programs\n- Certification tracks\n\n**Stakeholders**\n- Human resources\n- Training coordinators\n\n**Alignment with Industry Standards and Frameworks**\n- Certified Architect Programs\n- Industry workshops and seminars",
     "parent": "ae3e6fa9-5789-4181-8a3a-738565742c55",
     "capability": 0
   },
   {
-    "id": "aff96643-ca09-4d14-8608-25296ad80681",
-    "name": "Architecture Performance Management",
-    "description": "This sub-capability measures and monitors the performance of architecture initiatives to ensure they deliver expected business outcomes. It defines KPIs and metrics to evaluate architecture effectiveness and informs continuous improvement efforts.\n\nBy tracking architecture performance, this sub-capability helps optimize resource allocation and enhance the value derived from architectural investments.\n\n**Inputs**\n- Performance metrics\n- Project outcomes\n\n**Outputs**\n- Performance reports\n- Improvement recommendations\n\n**Stakeholders**\n- Performance analysts\n- Project managers",
+    "id": "7f92cfae-7c41-427c-8278-c8c7b42b0f93",
+    "name": "Strategic Alignment and Value Realization",
+    "description": "This capability ensures that enterprise architecture initiatives align with business strategies to maximize value realization. It includes identifying opportunities for leverage and optimization, aligning architectural efforts with organizational goals.\n\nBy focusing on strategic alignment, this capability helps maximize IT investments, ensuring that they contribute directly to business success.\n\n**Inputs**\n- Business objectives\n- IT performance metrics\n\n**Outputs**\n- Strategy alignment reports\n- Value realization metrics\n\n**Stakeholders**\n- Business executives\n- Strategic planning teams",
     "parent": "ae3e6fa9-5789-4181-8a3a-738565742c55",
+    "capability": 0
+  },
+  {
+    "id": "49bd1a52-ee9b-4f17-a9d1-e0605f9bdebe",
+    "name": "Policy Development and Oversight",
+    "description": "This sub-capability focuses on developing and maintaining policies that guide enterprise architecture governance. It ensures that all policies are aligned with organizational goals and are regularly updated to comply with changing regulations.\n\nBy implementing strong policy oversight, this sub-capability contributes to consistent governance practices across the organization, reducing risk and improving compliance.\n\n**Inputs**\n- Current organizational policies\n- Regulatory requirements\n\n**Outputs**\n- Updated governance policies\n- Compliance audit reports\n\n**Stakeholders**\n- Policy management team\n- Regulatory compliance officers\n\n**Alignment with Industry Standards and Frameworks**\n- ISO/IEC 38500\n- COBIT",
+    "parent": "d751c338-8d87-4703-a3e8-232bca37f38b",
+    "capability": 0
+  },
+  {
+    "id": "1c25709a-aef2-461c-bc98-3da77d7e3cb9",
+    "name": "Standards and Procedures Definition",
+    "description": "This sub-capability defines the standards and procedures necessary to support governance in enterprise architecture. It ensures that procedures are in place to enforce those standards consistently across projects and initiatives.\n\nThe establishment of clear standards and procedures results in a uniform approach to architecture, fostering alignment with business objectives and compliance needs.\n\n**Inputs**\n- Regulatory guidelines\n- Best practice documents\n\n**Outputs**\n- Architecture standards documents\n- Procedural manuals\n\n**Stakeholders**\n- Standards committees\n- Architecture review boards\n\n**Alignment with Industry Standards and Frameworks**\n- TOGAF guidelines\n- ITIL practices",
+    "parent": "d751c338-8d87-4703-a3e8-232bca37f38b",
+    "capability": 0
+  },
+  {
+    "id": "dc6406c5-ab86-4421-9992-02592a9a9e15",
+    "name": "Compliance Monitoring and Reporting",
+    "description": "This sub-capability involves the continuous monitoring of architectural compliance with established policies and standards. It includes the development and execution of compliance checks and audits.\n\nRegular monitoring and reporting provide insights into compliance status and areas for improvement, enhancing the organization's ability to adhere to governance frameworks.\n\n**Inputs**\n- Compliance checklists\n- Monitoring tools\n\n**Outputs**\n- Compliance reports\n- Audit findings\n\n**Stakeholders**\n- Internal audit team\n- IT governance committee\n\n**Enabling Technologies and Tools**\n- Compliance management software\n- Automated monitoring systems",
+    "parent": "d751c338-8d87-4703-a3e8-232bca37f38b",
+    "capability": 0
+  },
+  {
+    "id": "e72c59ef-eded-4285-b26e-881f8a6dc22f",
+    "name": "Governance Framework Development",
+    "description": "This sub-capability focuses on designing and implementing governance frameworks that ensure strategic alignment of architecture practices with business objectives. It involves mapping governance structures and responsibilities.\n\nA robust governance framework facilitates effective decision-making and strengthens the integration of architecture practices within the enterprise, supporting strategic goals.\n\n**Inputs**\n- Organizational structure\n- Strategic objectives\n\n**Outputs**\n- Governance framework documents\n- Role and responsibility matrices\n\n**Stakeholders**\n- Governance board\n- Executive leadership\n\n**Enabling Technologies and Tools**\n- Governance modeling tools\n\n**Alignment with Industry Standards and Frameworks**\n- TOGAF governance framework",
+    "parent": "d751c338-8d87-4703-a3e8-232bca37f38b",
+    "capability": 0
+  },
+  {
+    "id": "ee3f1496-58d5-439a-8746-7d802571ebcc",
+    "name": "Risk Management in Architecture",
+    "description": "This sub-capability addresses identifying and managing risks associated with the enterprise architecture. It includes developing risk mitigation strategies within the governance process.\n\nEffective risk management ensures that architectural practices are resilient and adaptable to changes and uncertainties, minimizing negative impacts on compliance and objectives.\n\n**Inputs**\n- Risk assessment reports\n- Threat modeling data\n\n**Outputs**\n- Risk mitigation plans\n- Risk register updates\n\n**Stakeholders**\n- Risk management team\n- IT security professionals",
+    "parent": "d751c338-8d87-4703-a3e8-232bca37f38b",
+    "capability": 0
+  },
+  {
+    "id": "bf3fc435-435a-41eb-be61-92b16cb22787",
+    "name": "Stakeholder Engagement and Communication",
+    "description": "This sub-capability ensures effective communication and engagement with stakeholders involved in architecture governance. It facilitates collaboration and understanding among diverse groups.\n\nEngaging stakeholders promotes transparency and alignment, ensuring that governance and compliance goals are well-understood and supported across the organization.\n\n**Inputs**\n- Stakeholder feedback\n- Communication plans\n\n**Outputs**\n- Stakeholder engagement strategies\n- Communication reports\n\n**Stakeholders**\n- Communication teams\n- Stakeholder engagement managers",
+    "parent": "d751c338-8d87-4703-a3e8-232bca37f38b",
+    "capability": 0
+  },
+  {
+    "id": "4f55ef08-e244-451a-b472-953d33f2f230",
+    "name": "Business Context Analysis",
+    "description": "This sub-capability involves analyzing the business environment and strategic goals to ensure that architecture designs align effectively with organizational objectives. It focuses on understanding current and future business needs to guide architectural planning.\n\nSuccessful implementation of this sub-capability results in architectural plans that proactively support business strategies, ensuring agile and responsive designs.\n\n**Inputs**\n- Business strategy documents\n- Market analysis reports\n\n**Outputs**\n- Business context reports\n- Architectural requirements\n\n**Stakeholders**\n- Business analysts\n- Strategic planning teams",
+    "parent": "62be48d3-5b1c-43cc-8cc7-8e25d7adf682",
+    "capability": 0
+  },
+  {
+    "id": "8fa1be91-a88e-4e8f-aca7-adc42df555aa",
+    "name": "Architecture Blueprint Development",
+    "description": "This sub-capability focuses on creating detailed architectural blueprints that serve as the foundation for future IT initiatives. It encompasses defining system components, their relationships, and integration with existing structures.\n\nThe outcome of this capability is a comprehensive set of blueprints that guide technology implementation, ensuring consistency and alignment with strategic goals.\n\n**Inputs**\n- Existing IT infrastructure\n- Business requirements\n\n**Outputs**\n- Architecture blueprints\n- Component design specifications\n\n**Stakeholders**\n- IT architects\n- Software development teams\n\n**Enabling Technologies and Tools**\n- Architecture modeling tools",
+    "parent": "62be48d3-5b1c-43cc-8cc7-8e25d7adf682",
+    "capability": 0
+  },
+  {
+    "id": "18867fd2-5871-4572-b7cf-813e7bb273a9",
+    "name": "Roadmap Development and Alignment",
+    "description": "This sub-capability involves creating and maintaining architecture roadmaps that chart the course for technology evolution within the organization. It ensures alignment between planned architecture changes and business priorities.\n\nBy developing clear roadmaps, this capability facilitates structured progression and synchronization of IT initiatives with business timelines.\n\n**Inputs**\n- Organizational objectives\n- Technology capability assessments\n\n**Outputs**\n- Architecture roadmaps\n- Implementation timelines\n\n**Stakeholders**\n- Project managers\n- Business unit leaders\n\n**Enabling Technologies and Tools**\n- Project management tools",
+    "parent": "62be48d3-5b1c-43cc-8cc7-8e25d7adf682",
+    "capability": 0
+  },
+  {
+    "id": "84094df1-2371-48d7-a9f1-7be822c49a34",
+    "name": "Interface and Integration Planning",
+    "description": "This sub-capability ensures seamless integration between new and existing systems by defining interfaces and integration points. It focuses on achieving interoperability across different platforms and technologies.\n\nA successful outcome includes standardized integration frameworks that support efficient communication and data exchange, enhancing overall system performance.\n\n**Inputs**\n- Existing system documentation\n- Integration requirements\n\n**Outputs**\n- Integration plans\n- Interface specifications\n\n**Stakeholders**\n- Integration specialists\n- System architects\n\n**Enabling Technologies and Tools**\n- Integration platforms",
+    "parent": "62be48d3-5b1c-43cc-8cc7-8e25d7adf682",
+    "capability": 0
+  },
+  {
+    "id": "9a84dddf-9b6b-47fd-a80f-cf5e5e6695a0",
+    "name": "Capacity and Performance Planning",
+    "description": "This sub-capability focuses on assessing and planning for current and future capacity and performance needs, ensuring systems can scale with organizational growth. It involves evaluating load, performance, and storage requirements.\n\nThe outcome is optimized systems that can meet business demands without unnecessary delays or resource wastage, contributing to efficient operations.\n\n**Inputs**\n- Usage statistics\n- Growth forecasts\n\n**Outputs**\n- Capacity plans\n- Performance metrics\n\n**Stakeholders**\n- IT operations teams\n- Performance analysts",
+    "parent": "62be48d3-5b1c-43cc-8cc7-8e25d7adf682",
+    "capability": 0
+  },
+  {
+    "id": "4138c16f-0fd7-49e0-b22b-c0c09ac4cdf5",
+    "name": "Technology Needs Assessment",
+    "description": "This sub-capability involves identifying and documenting the specific technology needs of the organization. It sets the foundation for potential technology gaps and informs subsequent evaluation and selection processes.\n\nOutcomes include a clear understanding of organizational technology requirements, enhancing decision-making and ensuring alignment with strategic goals.\n\n**Inputs**\n- Business goals\n- Current IT infrastructure\n\n**Outputs**\n- Technology requirement reports\n\n**Stakeholders**\n- Business unit leaders\n- IT management",
+    "parent": "f7d0d995-361f-44a1-8c34-8fba36c767c8",
+    "capability": 0
+  },
+  {
+    "id": "003c1b06-171a-42c8-b43f-e70f1468ac60",
+    "name": "Vendor and Market Analysis",
+    "description": "This sub-capability focuses on researching and analyzing potential technology vendors and market trends. It aims to identify suitable vendors and understand the competitive landscape.\n\nBy evaluating vendor offerings and market positions, this capability ensures informed decisions, optimizing the selection process and supporting strategic alignment.\n\n**Inputs**\n- Market research data\n- Vendor catalogues\n\n**Outputs**\n- Vendor analysis reports\n- Market trend insights\n\n**Stakeholders**\n- Procurement teams\n- Strategic planning department",
+    "parent": "f7d0d995-361f-44a1-8c34-8fba36c767c8",
+    "capability": 0
+  },
+  {
+    "id": "53d52317-a8cd-48e0-b986-51ebf52b591b",
+    "name": "Technology Evaluation Framework",
+    "description": "This sub-capability involves developing a standardized framework for evaluating technology solutions. It establishes criteria and metrics to compare technologies against organizational needs.\n\nThe framework ensures consistent, fair, and transparent evaluation processes, reducing risk and enhancing alignment with enterprise strategy.\n\n**Inputs**\n- Evaluation criteria\n- Industry benchmarks\n\n**Outputs**\n- Evaluation framework\n- Scoring models\n\n**Stakeholders**\n- Risk management team\n- IT governance committee",
+    "parent": "f7d0d995-361f-44a1-8c34-8fba36c767c8",
+    "capability": 0
+  },
+  {
+    "id": "90f601fd-bfbc-404e-90b1-13564778f9d4",
+    "name": "Piloting and Prototyping",
+    "description": "This sub-capability focuses on testing selected technology solutions through pilots and prototypes. It provides practical insights into the technology's effectiveness and integration capabilities.\n\nSuccessful pilots and prototypes minimize uncertainty, validate technological fit, and support informed decision-making in the selection process.\n\n**Inputs**\n- Selected technology solutions\n- User feedback\n\n**Outputs**\n- Pilot study reports\n- Prototype assessments\n\n**Stakeholders**\n- End users\n- IT deployment team",
+    "parent": "f7d0d995-361f-44a1-8c34-8fba36c767c8",
+    "capability": 0
+  },
+  {
+    "id": "c94a63d3-a400-4091-9235-170f911883f5",
+    "name": "Cost-Benefit Analysis",
+    "description": "This sub-capability involves performing financial evaluations of potential technology solutions, assessing both costs and expected benefits. It contributes to a thorough understanding of the economic impact of technology choices.\n\nA well-executed cost-benefit analysis ensures that technology investments align with organizational financial objectives and strategic priorities.\n\n**Inputs**\n- Cost estimates\n- Benefit projections\n\n**Outputs**\n- Cost-benefit analysis reports\n\n**Stakeholders**\n- Financial analysts\n- Budget committees",
+    "parent": "f7d0d995-361f-44a1-8c34-8fba36c767c8",
+    "capability": 0
+  },
+  {
+    "id": "670035e4-149c-404e-addb-3a422dad848b",
+    "name": "Risk Assessment and Mitigation",
+    "description": "This sub-capability assesses potential risks associated with technology options and develops strategies to mitigate them. It helps identify vulnerabilities in technology integration and use.\n\nEffective risk assessment and mitigation strategies enhance resilience, ensuring technology choices support long-term stability and growth.\n\n**Inputs**\n- Risk models\n- Historical data\n\n**Outputs**\n- Risk assessment reports\n- Mitigation plans\n\n**Stakeholders**\n- Risk management board\n- IT security teams",
+    "parent": "f7d0d995-361f-44a1-8c34-8fba36c767c8",
+    "capability": 0
+  },
+  {
+    "id": "a5ff2d28-7505-45e5-b90c-312a46a68f03",
+    "name": "Change Impact Analysis",
+    "description": "This sub-capability focuses on analyzing how proposed architectural changes will impact current and future enterprise systems. It ensures that all potential risks and benefits are understood before implementation.\n\nEffective impact analysis supports informed decision-making and maintains stability by predicting consequences and adjusting plans to minimize disruption.\n\n**Inputs**\n- Change requests\n- Architecture documentation\n\n**Outputs**\n- Impact analysis reports\n- Risk assessment summaries\n\n**Stakeholders**\n- Change management board\n- IT architects",
+    "parent": "77986939-dd6c-472b-8a0a-6bc3c0bd8a66",
+    "capability": 0
+  },
+  {
+    "id": "dec82887-f8f4-44fe-bf14-cf341e870236",
+    "name": "Change Prioritization and Scheduling",
+    "description": "This sub-capability involves evaluating and prioritizing architectural changes based on strategic importance, resource availability, and risk assessment. It schedules changes to optimize alignment with organizational objectives.\n\nBy methodically prioritizing and scheduling changes, this sub-capability helps balance agility and control, ensuring efficient use of resources and minimal business disruption.\n\n**Inputs**\n- Change impact analysis\n- Resource availability reports\n\n**Outputs**\n- Prioritized change list\n- Change schedule plan\n\n**Stakeholders**\n- Project management office\n- Business unit leaders",
+    "parent": "77986939-dd6c-472b-8a0a-6bc3c0bd8a66",
+    "capability": 0
+  },
+  {
+    "id": "17547c18-6e83-4cd7-8d3d-6d3e297b3a8c",
+    "name": "Change Authorization and Approval",
+    "description": "This sub-capability ensures that all architectural changes undergo a thorough review and authorization process. It establishes clear criteria for approval, aligned with governance and compliance standards.\n\nA robust authorization process safeguards architectural integrity, ensuring that changes support strategic goals and comply with organizational policies.\n\n**Inputs**\n- Change requests\n- Compliance requirements\n\n**Outputs**\n- Approval records\n- Rejection feedback\n\n**Stakeholders**\n- Change management board\n- Compliance officers",
+    "parent": "77986939-dd6c-472b-8a0a-6bc3c0bd8a66",
+    "capability": 0
+  },
+  {
+    "id": "047bb105-ac74-4daf-96f4-57aae33387a0",
+    "name": "Change Implementation Monitoring",
+    "description": "This sub-capability provides oversight during the implementation of architectural changes, ensuring adherence to the approved change plan. It monitors progress and addresses issues to keep the implementation on track.\n\nMonitoring implementation ensures that changes are executed smoothly, minimizing risks and securing the intended outcomes promptly.\n\n**Inputs**\n- Implementation plans\n- Authorized change requests\n\n**Outputs**\n- Progress reports\n- Issue logs\n\n**Stakeholders**\n- Implementation teams\n- Quality assurance teams",
+    "parent": "77986939-dd6c-472b-8a0a-6bc3c0bd8a66",
+    "capability": 0
+  },
+  {
+    "id": "eb9de1fc-35e7-45ff-a235-2124ebd78c12",
+    "name": "Post-Implementation Review",
+    "description": "This sub-capability focuses on reviewing completed changes to assess compliance with objectives and the identification of improvements. It supports continuous learning and process enhancement within architectural change management.\n\nConducting post-implementation reviews ensures that lessons learned are captured, contributing to ongoing improvement of change processes and outcomes.\n\n**Inputs**\n- Implementation completion reports\n- Performance metrics\n\n**Outputs**\n- Review reports\n- Lessons learned documentation\n\n**Stakeholders**\n- Change management board\n- Continuous improvement teams",
+    "parent": "77986939-dd6c-472b-8a0a-6bc3c0bd8a66",
+    "capability": 0
+  },
+  {
+    "id": "809aae0e-0af6-45b0-9b95-2f6ac0a53a9c",
+    "name": "Training Needs Assessment",
+    "description": "This sub-capability focuses on identifying the training and development needs of the enterprise architecture team. By assessing current skills and future requirements, it ensures that team members are prepared to meet the evolving demands of the organization.\n\nOutcomes include a detailed understanding of skill gaps and a roadmap for targeted skill enhancement, directly aligning with strategic goals of the Enterprise Architecture CoE by ensuring a capable and adaptable workforce.\n\n**Inputs**\n- Current skill assessments\n- Strategic business goals\n\n**Outputs**\n- Training needs analysis reports\n- Skill gap documentation\n\n**Stakeholders**\n- Human resources\n- EA team leaders\n\n**Enabling Technologies and Tools**\n- Skill assessment platforms",
+    "parent": "bbef1890-ea66-4375-ba18-4496a37ee88e",
+    "capability": 0
+  },
+  {
+    "id": "a09e0f84-3b70-4eee-acfa-8c4f0daccddb",
+    "name": "Curriculum Development",
+    "description": "This sub-capability involves designing and developing curriculum tailored to the needs of the enterprise architecture team. It ensures that learning content is relevant, engaging, and aligned with industry standards.\n\nEffective curriculum development results in comprehensive training programs that enhance technical and strategic architecture skills, supporting continuous improvement and operational excellence.\n\n**Inputs**\n- Training needs analysis\n- Industry standards\n\n**Outputs**\n- Customized training manuals\n- Program syllabi\n\n**Stakeholders**\n- Training coordinators\n- Subject matter experts\n\n**Alignment with Industry Standards and Frameworks**\n- TOGAF certification content",
+    "parent": "bbef1890-ea66-4375-ba18-4496a37ee88e",
+    "capability": 0
+  },
+  {
+    "id": "bfe19383-8b06-4e4f-b287-728147c96cfa",
+    "name": "Professional Certification Programs",
+    "description": "This sub-capability centers on facilitating certification opportunities for the architecture team, enhancing both individual credentials and organizational credibility. It includes managing enrollment in recognized certification programs that validate professional expertise.\n\nSuccess in this area leads to a more qualified and authoritative architecture team, reinforcing the strategic position and influence of the EA CoE within the organization.\n\n**Inputs**\n- Certification requirements\n- Career development plans\n\n**Outputs**\n- Certification tracks\n- Credentialing pathways\n\n**Stakeholders**\n- Employees\n- Certification bodies",
+    "parent": "bbef1890-ea66-4375-ba18-4496a37ee88e",
+    "capability": 0
+  },
+  {
+    "id": "04f84155-bde0-4e53-84b3-731af98b57e6",
+    "name": "Continuous Learning and Development",
+    "description": "This sub-capability provides ongoing learning opportunities to ensure the architecture team's skills remain current. It incorporates workshops, seminars, and e-learning initiatives that support lifelong learning.\n\nMaintaining a culture of continuous learning increases adaptability and innovation, allowing the organization to meet new technology challenges and leverage emerging opportunities effectively.\n\n**Inputs**\n- Market and technology trends\n- Employee feedback\n\n**Outputs**\n- Learning resource repository\n- Scheduled workshops\n\n**Stakeholders**\n- Learning and development teams\n- Technology partners\n\n**Enabling Technologies and Tools**\n- E-learning platforms",
+    "parent": "bbef1890-ea66-4375-ba18-4496a37ee88e",
+    "capability": 0
+  },
+  {
+    "id": "9611f084-32ac-4d55-9d9e-2c6f04ddec5f",
+    "name": "Mentorship and Knowledge Transfer",
+    "description": "This sub-capability creates structured programs for mentorship and knowledge sharing within the architecture team. It pairs experienced architects with newer team members, promoting skill development and organizational cohesion.\n\nOutcomes include improved team collaboration and accelerated professional growth, ensuring that valuable knowledge and best practices are effectively shared across the organization.\n\n**Inputs**\n- Mentor and mentee profiles\n- Knowledge bases\n\n**Outputs**\n- Mentorship plans\n- Knowledge transfer sessions\n\n**Stakeholders**\n- Senior architects\n- Junior team members",
+    "parent": "bbef1890-ea66-4375-ba18-4496a37ee88e",
+    "capability": 0
+  },
+  {
+    "id": "3f0b0b13-dd91-451f-ac11-c6a1b9915846",
+    "name": "Business Strategy Integration",
+    "description": "This sub-capability focuses on synchronizing enterprise architecture initiatives with overarching business strategies. It identifies strategic priorities and integrates them into the architectural planning process.\n\nThe outcome is a cohesive strategic framework that ensures architecture efforts are directly tied to business objectives, optimizing resource allocation and facilitating strategic goal achievement.\n\n**Inputs**\n- Business strategy documents\n- Strategic planning sessions\n\n**Outputs**\n- Strategy integration plans\n- Strategic alignment reports\n\n**Stakeholders**\n- Business strategy team\n- IT leadership",
+    "parent": "7f92cfae-7c41-427c-8278-c8c7b42b0f93",
+    "capability": 0
+  },
+  {
+    "id": "dbac7d27-24b0-42ae-8db1-0d1aa0632ff2",
+    "name": "Enterprise Value Metrics",
+    "description": "This sub-capability is dedicated to developing and measuring metrics that assess the value delivered through enterprise architecture initiatives. It focuses on quantifying the impact of architecture on business outcomes.\n\nBy providing clear metrics and KPIs, this capability ensures that architecture investments are effectively contributing to business success and value realization is transparent and measurable.\n\n**Inputs**\n- Current performance reports\n- Value benchmarks\n\n**Outputs**\n- Value realization metrics\n- Performance improvement reports\n\n**Stakeholders**\n- Performance management team\n- Business executives",
+    "parent": "7f92cfae-7c41-427c-8278-c8c7b42b0f93",
+    "capability": 0
+  },
+  {
+    "id": "4b9be45c-b425-4b3f-8913-016d35615114",
+    "name": "Opportunity and Gap Analysis",
+    "description": "This sub-capability identifies opportunities for optimization and potential gaps between current capabilities and strategic objectives. It analyzes existing systems and processes to uncover improvement areas.\n\nOutcomes include actionable insights that drive architectural adjustments and innovations, ensuring continuous alignment with business goals and market demands.\n\n**Inputs**\n- SWOT analysis results\n- Current capability assessments\n\n**Outputs**\n- Opportunity maps\n- Gap analysis reports\n\n**Stakeholders**\n- Business analysts\n- Architecture team",
+    "parent": "7f92cfae-7c41-427c-8278-c8c7b42b0f93",
+    "capability": 0
+  },
+  {
+    "id": "7e48f33e-9274-4854-9246-69098b036e1b",
+    "name": "Portfolio Optimization",
+    "description": "This sub-capability focuses on optimizing the portfolio of IT investments to enhance strategic value. It evaluates existing projects and initiatives against strategic goals and prioritizes them accordingly.\n\nDelivering an optimized portfolio ensures efficient resource use, aligns projects with corporate strategy, and enhances return on investment in IT assets.\n\n**Inputs**\n- Project portfolio data\n- Investment evaluation criteria\n\n**Outputs**\n- Portfolio prioritization charts\n- Optimization recommendations\n\n**Stakeholders**\n- Portfolio management office\n- Financial analysts",
+    "parent": "7f92cfae-7c41-427c-8278-c8c7b42b0f93",
+    "capability": 0
+  },
+  {
+    "id": "ebc293ac-4d85-4c35-8c50-c4e7e2cfb4ba",
+    "name": "Stakeholder Engagement and Communication",
+    "description": "This sub-capability involves developing a framework for engaging various stakeholders in strategic alignment efforts. It focuses on facilitating effective communication across teams to ensure all parties are informed and aligned.\n\nImproved stakeholder engagement leads to better collaboration, smoother implementation of architecture initiatives, and stronger commitment to strategic goals.\n\n**Inputs**\n- Stakeholder analysis reports\n- Communication strategies\n\n**Outputs**\n- Engagement plans\n- Communication updates\n\n**Stakeholders**\n- Corporate communications\n- Business unit leaders",
+    "parent": "7f92cfae-7c41-427c-8278-c8c7b42b0f93",
     "capability": 0
   }
 ]
