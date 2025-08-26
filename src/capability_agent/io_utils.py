@@ -2,6 +2,8 @@ from __future__ import annotations
 
 import json
 from dataclasses import dataclass
+import re
+from datetime import datetime
 from pathlib import Path
 from typing import Any, Optional
 
@@ -55,3 +57,31 @@ def parse_context_level(value: Optional[str]) -> ContextOptions:
         else:
             raise ValueError(f"Unknown context level option: {p}")
     return opts
+
+
+def ensure_dir(path: Path) -> None:
+    """Create directory if it doesn't exist."""
+    path.mkdir(parents=True, exist_ok=True)
+
+
+_FILENAME_SAFE_RE = re.compile(r"[^A-Za-z0-9._-]+")
+
+
+def safe_filename(name: str, max_len: int = 80) -> str:
+    """Return a filesystem-safe, reasonably short filename stem.
+
+    - Lowercases
+    - Replaces unsafe chars with '-'
+    - Collapses repeats and trims to max_len
+    """
+    stem = name.strip().lower()
+    stem = stem.replace(" ", "-")
+    stem = _FILENAME_SAFE_RE.sub("-", stem)
+    stem = re.sub(r"-+", "-", stem).strip("-._")
+    if len(stem) > max_len:
+        stem = stem[:max_len].rstrip("-._")
+    return stem or "capability"
+
+
+def timestamp_for_filename() -> str:
+    return datetime.now().strftime("%Y%m%d-%H%M%S")

@@ -8,7 +8,12 @@ from rich.console import Console
 from rich.panel import Panel
 from rich.theme import Theme
 
-from .io_utils import load_system_message, parse_context_level, read_json_file, write_json_file
+from .io_utils import (
+    load_system_message,
+    parse_context_level,
+    read_json_file,
+    write_json_file,
+)
 from .models import validate_model
 from .service import augment_model
 
@@ -26,6 +31,15 @@ def run(
     tasks: int = typer.Option(4, min=1, help="Number of concurrent LLM calls"),
     override_system_message: Optional[Path] = typer.Option(None, exists=True, dir_okay=False, readable=True, help="Optional system message file"),
     context_level: Optional[str] = typer.Option(None, help="Comma-separated context: full_tree,parent,siblings"),
+    log_prompts: Optional[Path] = typer.Option(
+        None,
+        "--log-prompts",
+        help="Directory to write rendered prompts (one file per leaf).",
+        exists=False,
+        file_okay=False,
+        dir_okay=True,
+        writable=True,
+    ),
 ):
     """Augment INPUT model and write enhanced OUTPUT as JSON array."""
     console.print(Panel.fit("business-capgen: Augmenting capability model", title="capability-agent"))
@@ -49,6 +63,9 @@ def run(
         console.print(f"Failed to load system message: {e}", style="error")
         raise typer.Exit(1)
 
+    # Resolve log prompts directory
+    log_dir: Optional[Path] = log_prompts
+
     try:
         enhanced = augment_model(
             model=model,
@@ -57,6 +74,7 @@ def run(
             system_message=system_message,
             max_capabilities=max_capabilities,
             tasks=tasks,
+            log_prompts_dir=log_dir,
         )
     except Exception as e:  # noqa: BLE001
         console.print(f"Augmentation failed: {e}", style="error")

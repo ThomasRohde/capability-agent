@@ -1,4 +1,4 @@
-Developer: # Role and Objective
+# Role and Objective
 - Assist in decomposing the business capability '{{ node.name }}' into a set of MECE (Mutually Exclusive, Collectively Exhaustive) sub-capabilities aligned to effective business capability modeling principles, using the structured context below.
 
 # Instructions
@@ -10,7 +10,7 @@ Developer: # Role and Objective
   - Clear, with no overlap with existing sub-capabilities or siblings.
   - Consistent in abstraction and detail.
   - Complete and valuable to the organization.
-  - Respectful of any given sub-capabilities (`<sub_capabilities>`) and sibling context (`<sibling_context>`).
+  - Respectful of any sibling context (`<sibling_context>`).
 
 ## Sectioned Context Guide
 Use the following tags to structure your analysis. Treat absent sections as empty, not as a reason to stop.
@@ -19,7 +19,6 @@ Use the following tags to structure your analysis. Treat absent sections as empt
 - `<parent_hierarchy>`: Chain of parent capabilities from root (best-effort with provided context)
 - `<sibling_context>`: Sibling capabilities at same hierarchy level
 - `<current_capability>`: Name and description of the focal capability
-- `<sub_capabilities>`: Any already-defined sub-capabilities to avoid duplication
 
 <first_level_capabilities>
 {% if full_tree is defined %}
@@ -56,10 +55,6 @@ Use the following tags to structure your analysis. Treat absent sections as empt
 <current_capability>
 {{ {"name": node.name, "description": node.description} | tojson(indent=2) }}
 </current_capability>
-
-<sub_capabilities>
-[]
-</sub_capabilities>
 
 ## Sub-capability Definition
 For each sub-capability identified, include:

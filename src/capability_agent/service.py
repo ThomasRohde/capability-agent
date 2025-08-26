@@ -2,7 +2,7 @@ from __future__ import annotations
 
 import uuid
 from pathlib import Path
-from typing import List, Sequence
+from typing import List, Sequence, Optional
 from concurrent.futures import ThreadPoolExecutor, as_completed
 
 from rich.console import Console
@@ -16,7 +16,7 @@ from rich.progress import (
 )
 from rich.theme import Theme
 
-from .io_utils import ContextOptions
+from .io_utils import ContextOptions, ensure_dir, safe_filename, timestamp_for_filename
 from .llm import call_openai, ensure_client
 from .models import Capability, CapabilityList
 from .prompting import build_prompt_context, render_prompt
@@ -32,6 +32,7 @@ def augment_model(
     system_message: str,
     max_capabilities: int,
     tasks: int = 4,
+    log_prompts_dir: Optional[Path] = None,
 ) -> CapabilityList:
     client = ensure_client()
 
@@ -57,6 +58,21 @@ def augment_model(
             context = build_prompt_context(model, leaf, context_opts)
             context["max_capabilities"] = max_capabilities
             user_prompt = render_prompt(template_path, context)
+
+            # Optionally log the rendered prompt per leaf
+            if log_prompts_dir is not None:
+                try:
+                    ensure_dir(log_prompts_dir)
+                    stem = f"{timestamp_for_filename()}_{safe_filename(leaf.name)}"
+                    # include short id to avoid collisions
+                    short_id = (leaf.id or "")[:8]
+                    if short_id:
+                        stem = f"{stem}_{short_id}"
+                    out_path = (log_prompts_dir / f"{stem}.prompt.txt").resolve()
+                    out_path.write_text(user_prompt, encoding="utf-8")
+                except Exception as e:  # noqa: BLE001
+                    # Do not fail augmentation if logging fails; surface as info
+                    console.print(f"Prompt log failed for {leaf.name}: {e}", style="error")
 
             # Call LLM (one generation per leaf)
             generated = call_openai(
