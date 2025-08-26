@@ -16,7 +16,7 @@ from rich.progress import (
 )
 from rich.theme import Theme
 
-from .io_utils import ContextOptions, ensure_dir, safe_filename, timestamp_for_filename
+from .io_utils import ContextFormat, ContextOptions, ensure_dir, safe_filename, timestamp_for_filename
 from .llm import call_openai, call_openai_streaming, ensure_client
 from .models import Capability, CapabilityList
 from .prompting import build_prompt_context, render_prompt
@@ -29,6 +29,7 @@ def augment_model(
     model: CapabilityList,
     template_path: Path,
     context_opts: ContextOptions,
+    context_format: ContextFormat,
     system_message: str,
     max_capabilities: int,
     tasks: int = 4,
@@ -42,7 +43,7 @@ def augment_model(
 
     def generate_children(leaf: Capability) -> Sequence[Capability]:
         # Build prompt context and render
-        context = build_prompt_context(model, leaf, context_opts)
+        context = build_prompt_context(model, leaf, context_opts, context_format)
         context["max_capabilities"] = max_capabilities
         user_prompt = render_prompt(template_path, context)
 

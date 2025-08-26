@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import json
 from dataclasses import dataclass
+from enum import Enum
 import re
 from datetime import datetime
 from pathlib import Path
@@ -12,6 +13,12 @@ from rich.theme import Theme
 
 
 console = Console(theme=Theme({"error": "bold red", "info": "cyan"}))
+
+
+class ContextFormat(Enum):
+    JSON = "json"
+    MARKDOWN = "markdown"
+    XML = "xml"
 
 
 @dataclass

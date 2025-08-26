@@ -49,3 +49,8 @@ line-length = 100
 
 [tool.pyproject-fmt]
 max_supported_python = "3.12"
+
+[dependency-groups]
+dev = [
+    "ruff>=0.12.10",
+]

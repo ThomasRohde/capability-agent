@@ -5,47 +5,5 @@
     "description": "An EA Center of Excellence in a large banking organization.",
     "parent": null,
     "capability": 0
-  },
-  {
-    "id": "d751c338-8d87-4703-a3e8-232bca37f38b",
-    "name": "Architecture Governance and Compliance",
-    "description": "This sub-capability focuses on establishing governance frameworks to ensure architectural compliance across the organization. It defines policies, standards, and practices to guide the execution of enterprise architecture initiatives.\n\nSuccessful implementation results in consistent adherence to architectural principles, enhancing the overall quality and sustainability of IT solutions. This aligns with the strategic intent of the Enterprise Architecture CoE by embedding compliance in all architectural processes.\n\n**Inputs**\n- Enterprise architecture policies\n- Compliance requirements\n\n**Outputs**\n- Governance frameworks\n- Compliance reports\n\n**Stakeholders**\n- Chief Information Officer\n- Regulatory bodies\n\n**Alignment with Industry Standards and Frameworks**\n- TOGAF\n- COBIT",
-    "parent": "ae3e6fa9-5789-4181-8a3a-738565742c55",
-    "capability": 0
-  },
-  {
-    "id": "62be48d3-5b1c-43cc-8cc7-8e25d7adf682",
-    "name": "Architecture Design and Planning",
-    "description": "This capability involves creating comprehensive architecture designs and plans that align with business strategies. It defines the architectural blueprints and roadmaps necessary for successful implementation of enterprise initiatives.\n\nBy delivering holistic and strategic designs, this capability ensures alignment of IT assets with business goals, fostering consistent and efficient enterprise operations.\n\n**Inputs**\n- Business strategy documents\n- Existing IT infrastructure\n\n**Outputs**\n- Architecture blueprints\n- Roadmaps\n\n**Stakeholders**\n- IT architects\n- Business unit leaders\n\n**Enabling Technologies and Tools**\n- Architecture modeling tools",
-    "parent": "ae3e6fa9-5789-4181-8a3a-738565742c55",
-    "capability": 0
-  },
-  {
-    "id": "f7d0d995-361f-44a1-8c34-8fba36c767c8",
-    "name": "Technology Evaluation and Selection",
-    "description": "This sub-capability provides structured processes for evaluating and selecting technology solutions that meet enterprise architecture requirements. It focuses on ensuring that new technologies align with strategic objectives and provide cohesive integration.\n\nOutcomes include optimized technology portfolios that support long-term organizational growth, minimizing technical debt and maximizing technology ROI.\n\n**Inputs**\n- Technology requirements\n- Vendor proposals\n\n**Outputs**\n- Technology evaluations\n- Selection recommendations\n\n**Stakeholders**\n- Procurement teams\n- IT strategy team",
-    "parent": "ae3e6fa9-5789-4181-8a3a-738565742c55",
-    "capability": 0
-  },
-  {
-    "id": "77986939-dd6c-472b-8a0a-6bc3c0bd8a66",
-    "name": "Architectural Change Management",
-    "description": "This capability oversees the management of architectural changes, ensuring that modifications align with the established architecture strategy. It balances agility with stability by managing change impacts across the architecture landscape.\n\nEffective change management maintains architectural coherence and minimizes risk, contributing to the overall resilience of enterprise operations.\n\n**Inputs**\n- Change requests\n- Impact analysis reports\n\n**Outputs**\n- Change management plans\n- Updated architecture documentation\n\n**Stakeholders**\n- Change management board\n- Project management office",
-    "parent": "ae3e6fa9-5789-4181-8a3a-738565742c55",
-    "capability": 0
-  },
-  {
-    "id": "bbef1890-ea66-4375-ba18-4496a37ee88e",
-    "name": "Knowledge and Skills Development",
-    "description": "This sub-capability focuses on developing the skills and knowledge necessary for enterprise architecture practices. It includes training programs, certifications, and continuous learning initiatives to ensure proficiency across the architecture team.\n\nCultivating a skilled architecture team supports the maturity of the EA CoE, enabling the organization to efficiently adapt to evolving business and technology landscapes.\n\n**Inputs**\n- Current skill assessments\n- Training needs analysis\n\n**Outputs**\n- Training programs\n- Certification tracks\n\n**Stakeholders**\n- Human resources\n- Training coordinators\n\n**Alignment with Industry Standards and Frameworks**\n- Certified Architect Programs\n- Industry workshops and seminars",
-    "parent": "ae3e6fa9-5789-4181-8a3a-738565742c55",
-    "capability": 0
-  },
-  {
-    "id": "7f92cfae-7c41-427c-8278-c8c7b42b0f93",
-    "name": "Strategic Alignment and Value Realization",
-    "description": "This capability ensures that enterprise architecture initiatives align with business strategies to maximize value realization. It includes identifying opportunities for leverage and optimization, aligning architectural efforts with organizational goals.\n\nBy focusing on strategic alignment, this capability helps maximize IT investments, ensuring that they contribute directly to business success.\n\n**Inputs**\n- Business objectives\n- IT performance metrics\n\n**Outputs**\n- Strategy alignment reports\n- Value realization metrics\n\n**Stakeholders**\n- Business executives\n- Strategic planning teams",
-    "parent": "ae3e6fa9-5789-4181-8a3a-738565742c55",
-    "capability": 0
   }
 ]

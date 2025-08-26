@@ -9,6 +9,7 @@ from rich.panel import Panel
 from rich.theme import Theme
 
 from .io_utils import (
+    ContextFormat,
     load_system_message,
     parse_context_level,
     read_json_file,
@@ -31,6 +32,7 @@ def run(
     tasks: int = typer.Option(4, min=1, help="Number of concurrent LLM calls"),
     override_system_message: Optional[Path] = typer.Option(None, exists=True, dir_okay=False, readable=True, help="Optional system message file"),
     context_level: Optional[str] = typer.Option(None, help="Comma-separated context: full_tree,parent,siblings"),
+    context_format: str = typer.Option("markdown", help="Context format: json, markdown, or xml"),
     log_prompts: Optional[Path] = typer.Option(
         None,
         "--log-prompts",
@@ -59,6 +61,12 @@ def run(
         raise typer.Exit(1)
 
     try:
+        ctx_format = ContextFormat(context_format.lower())
+    except ValueError:
+        console.print(f"Invalid context format: {context_format}. Must be one of: json, markdown, xml", style="error")
+        raise typer.Exit(1)
+
+    try:
         system_message = load_system_message(override_system_message)
     except Exception as e:  # noqa: BLE001
         console.print(f"Failed to load system message: {e}", style="error")
@@ -77,6 +85,7 @@ def run(
             model=model,
             template_path=template,
             context_opts=ctx_opts,
+            context_format=ctx_format,
             system_message=system_message,
             max_capabilities=max_capabilities,
             tasks=tasks,

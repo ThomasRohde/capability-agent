@@ -14,46 +14,25 @@
 
 ## Sectioned Context Guide
 Use the following tags to structure your analysis. Treat absent sections as empty, not as a reason to stop.
-- `<first_level_capabilities>`: Top-level capabilities with descriptions
 - `<capability_tree>`: Full capability hierarchy, with current capability marked
 - `<parent_hierarchy>`: Chain of parent capabilities from root (best-effort with provided context)
 - `<sibling_context>`: Sibling capabilities at same hierarchy level
 - `<current_capability>`: Name and description of the focal capability
 
-<first_level_capabilities>
-{% if full_tree is defined %}
-{{ (full_tree | selectattr('parent', 'equalto', none) | list) | tojson(indent=2) }}
-{% else %}
-[]
-{% endif %}
-</first_level_capabilities>
-
 <capability_tree>
-{% if full_tree is defined %}
-{{ full_tree | tojson(indent=2) }}
-{% else %}
-[]
-{% endif %}
+{{ formatted_full_tree }}
 </capability_tree>
 
 <parent_hierarchy>
-{% if parent is defined %}
-{{ [parent] | tojson(indent=2) }}
-{% else %}
-[]
-{% endif %}
+{{ formatted_parent }}
 </parent_hierarchy>
 
 <sibling_context>
-{% if siblings is defined %}
-{{ siblings | tojson(indent=2) }}
-{% else %}
-[]
-{% endif %}
+{{ formatted_siblings }}
 </sibling_context>
 
 <current_capability>
-{{ {"name": node.name, "description": node.description} | tojson(indent=2) }}
+{{ formatted_capability }}
 </current_capability>
 
 ## Sub-capability Definition
