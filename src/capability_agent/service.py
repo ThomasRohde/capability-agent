@@ -5,7 +5,14 @@ from pathlib import Path
 from typing import List
 
 from rich.console import Console
-from rich.progress import track
+from rich.progress import (
+    Progress,
+    SpinnerColumn,
+    TextColumn,
+    BarColumn,
+    TaskProgressColumn,
+    TimeElapsedColumn,
+)
 from rich.theme import Theme
 
 from .io_utils import ContextOptions
@@ -28,28 +35,51 @@ def augment_model(
 
     leaves = model.leaves()
     new_nodes: List[Capability] = []
-    for leaf in track(leaves, description="Generating sub-capabilities"):
-        context = build_prompt_context(model, leaf, context_opts)
-        context["max_capabilities"] = max_capabilities
-        user_prompt = render_prompt(template_path, context)
 
-        generated = call_openai(client, system_message, user_prompt, max_capabilities)
+    # Rich progress with a single overall bar (one tick per generation/leaf)
+    with Progress(
+        SpinnerColumn(style="info"),
+        TextColumn("[progress.description]{task.description}"),
+        BarColumn(),
+        TaskProgressColumn(),
+        TimeElapsedColumn(),
+        console=console,
+        transient=True,
+    ) as progress:
+        overall_task = progress.add_task(
+            "Generating sub-capabilities", total=len(leaves)
+        )
 
-        # Inherit extra fields from parent (leaf) except reserved keys
-        inherited = leaf.model_dump()
-        inherited.pop("id", None)
-        inherited.pop("name", None)
-        inherited.pop("description", None)
+        for leaf in leaves:
+            # Optionally show which leaf is being processed in the description
+            progress.update(overall_task, description=f"Generating: {leaf.name}")
 
-        for item in generated:
-            node_data = {
-                **inherited,
-                "id": str(uuid.uuid4()),
-                "name": item["name"],
-                "description": item["description"],
-                "parent": leaf.id,
-            }
-            new_nodes.append(Capability.model_validate(node_data))
+            # Build prompt context and render
+            context = build_prompt_context(model, leaf, context_opts)
+            context["max_capabilities"] = max_capabilities
+            user_prompt = render_prompt(template_path, context)
+
+            # Call LLM (one generation per leaf)
+            generated = call_openai(client, system_message, user_prompt, max_capabilities)
+
+            # Inherit extra fields from parent (leaf) except reserved keys
+            inherited = leaf.model_dump()
+            inherited.pop("id", None)
+            inherited.pop("name", None)
+            inherited.pop("description", None)
+
+            for item in generated:
+                node_data = {
+                    **inherited,
+                    "id": str(uuid.uuid4()),
+                    "name": item["name"],
+                    "description": item["description"],
+                    "parent": leaf.id,
+                }
+                new_nodes.append(Capability.model_validate(node_data))
+
+            # Advance the overall bar once per generation/leaf
+            progress.advance(overall_task, 1)
 
     output = CapabilityList.model_validate([*model.root, *new_nodes])
 
