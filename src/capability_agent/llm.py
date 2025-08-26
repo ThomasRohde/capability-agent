@@ -94,11 +94,11 @@ def call_openai(client: OpenAI, system_message: str, user_prompt: str, max_items
         },
     }
 
-    model = os.getenv("OPENAI_MODEL") or "gpt-4o-mini"
+    model = os.getenv("OPENAI_MODEL") or "gpt-5-nano"
     try:
         resp = client.responses.create(
             model=model,
-            temperature=0.3,
+            # temperature=0.3,
             instructions=system_message,
             input=user_prompt,
             response_format=response_format,
@@ -109,7 +109,7 @@ def call_openai(client: OpenAI, system_message: str, user_prompt: str, max_items
             try:
                 resp = client.responses.create(
                     model=model,
-                    temperature=0.3,
+                    # temperature=0.3,
                     instructions=system_message,
                     input=user_prompt,
                 )

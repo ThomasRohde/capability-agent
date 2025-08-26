@@ -1,35 +1,142 @@
-You are given a business capability model. Generate up to {{ max_capabilities }} sub-capabilities for the leaf node below.
+Developer: # Role and Objective
+- Assist in decomposing the business capability '{{ node.name }}' into a set of MECE (Mutually Exclusive, Collectively Exhaustive) sub-capabilities aligned to effective business capability modeling principles, using the structured context below.
 
-Requirements:
-- Output a JSON array only, inside a Markdown ```json code block.
-- Each item must have fields: name (string), description (string).
-- Keep names concise and distinct.
-- Avoid duplicates and overlaps with existing siblings.
+# Instructions
+- Carefully analyze the provided context for '{{ node.name }}'.
+- Think through a concise internal checklist (3-7 bullets); do not include the checklist in the output.
+- Decompose into up to {{ max_capabilities }} sub-capabilities, ensuring each is:
+  - Aligned directly to '{{ node.name }}' and its strategic intent.
+  - Mutually exclusive and collectively exhaustive (MECE).
+  - Clear, with no overlap with existing sub-capabilities or siblings.
+  - Consistent in abstraction and detail.
+  - Complete and valuable to the organization.
+  - Respectful of any given sub-capabilities (`<sub_capabilities>`) and sibling context (`<sibling_context>`).
 
-Leaf Node:
-{{ node | tojson(indent=2) }}
+## Sectioned Context Guide
+Use the following tags to structure your analysis. Treat absent sections as empty, not as a reason to stop.
+- `<first_level_capabilities>`: Top-level capabilities with descriptions
+- `<capability_tree>`: Full capability hierarchy, with current capability marked
+- `<parent_hierarchy>`: Chain of parent capabilities from root (best-effort with provided context)
+- `<sibling_context>`: Sibling capabilities at same hierarchy level
+- `<current_capability>`: Name and description of the focal capability
+- `<sub_capabilities>`: Any already-defined sub-capabilities to avoid duplication
 
-{% if parent is defined %}
-Parent:
-{{ parent | tojson(indent=2) }}
-{% endif %}
-
-{% if siblings is defined %}
-Siblings:
-{{ siblings | tojson(indent=2) }}
-{% endif %}
-
+<first_level_capabilities>
 {% if full_tree is defined %}
-Full Tree:
-{{ full_tree | tojson(indent=2) }}
+{{ (full_tree | selectattr('parent', 'equalto', none) | list) | tojson(indent=2) }}
+{% else %}
+[]
 {% endif %}
+</first_level_capabilities>
 
-Respond strictly as:
-```json
-[
-  {
-    "name": "Capability 1",
-    "description": "Capability 1 description"
-  }
-]
+<capability_tree>
+{% if full_tree is defined %}
+{{ full_tree | tojson(indent=2) }}
+{% else %}
+[]
+{% endif %}
+</capability_tree>
+
+<parent_hierarchy>
+{% if parent is defined %}
+{{ [parent] | tojson(indent=2) }}
+{% else %}
+[]
+{% endif %}
+</parent_hierarchy>
+
+<sibling_context>
+{% if siblings is defined %}
+{{ siblings | tojson(indent=2) }}
+{% else %}
+[]
+{% endif %}
+</sibling_context>
+
+<current_capability>
+{{ {"name": node.name, "description": node.description} | tojson(indent=2) }}
+</current_capability>
+
+<sub_capabilities>
+[]
+</sub_capabilities>
+
+## Sub-capability Definition
+For each sub-capability identified, include:
+1. Name: Concise and specific (string).
+2. Description: Strictly formatted markdown as follows:
+   - Exactly two short paragraphs first (business-focused: scope, purpose, outcomes, alignment). No headings or bullets in these two paragraphs.
+   - Then the following sections, each as a bold heading on its own line with no leading dash/bullet, followed by bulleted items on subsequent lines:
+     - Required sections (always include, even if you must add a single "- None"):
+       - Inputs
+       - Outputs
+       - Stakeholders
+     - Optional sections (include only if relevant):
+       - Enabling Technologies and Tools
+       - Alignment with Industry Standards and Frameworks
+   - Formatting rules to enforce consistency:
+     - Headings must be bold, exactly spelled as shown above, with no trailing colon, e.g., "**Inputs**".
+     - The items under each heading must be Markdown bullets, each line beginning with "- ".
+     - Do not use nested bullets. Keep items flat and concise.
+     - Place a blank line between the two paragraphs and the first heading, and a blank line between each heading block.
+
+Example description format (structure guide — do not copy verbatim):
 ```
+First paragraph explaining the sub-capability at a business level, clarifying scope and purpose.
+
+Second paragraph covering outcomes, success measures, and alignment with the parent capability.
+
+**Inputs**
+- Key input 1
+- Key input 2
+
+**Outputs**
+- Key output 1
+- Key output 2
+
+**Stakeholders**
+- Role or team A
+- Role or team B
+
+**Enabling Technologies and Tools**
+- Tool or platform (include only if relevant)
+
+**Alignment with Industry Standards and Frameworks**
+- Standard or framework note (include only if relevant)
+```
+
+## Output Constraints
+- Output only a JSON array as a Markdown ```json code block; no extra text.
+- Each array element schema:
+  - "name": string
+  - "description": string (as specified above)
+- Array must not exceed {{ max_capabilities }}; prioritize the most logical decomposition.
+- If required context is missing or insufficient to produce high-quality sub-capabilities, output [] only.
+- Generate only as many sub-capabilities as can be robustly defined.
+- No duplicates or overlaps.
+
+## Output Format
+- Strict, valid JSON in a Markdown codeblock.
+- No extra keys, text, or trailing commas.
+
+# Reasoning Steps
+- Parse and structure context by sections.
+- Identify logical, non-overlapping sub-capabilities.
+- Cross-check with existing sub-capabilities and siblings for completeness without duplication.
+- Ensure adherence to MECE and business value principles.
+
+# Planning and Verification
+- Decompose requirements, noting assumptions/unknowns.
+- Verify all existing structure is integrated and honored.
+- After sub-capabilities are defined, validate that the proposed set is MECE and that JSON output matches schema and syntax; self-correct if issues are found.
+
+# Verbosity
+- For sub-capability descriptions: use moderate detail to ensure business comprehensibility.
+- For input/output: list essential elements only.
+
+# Stop Conditions
+- If context is clearly insufficient, output only [].
+- Stop when all robust, non-overlapping sub-capabilities are defined (up to max).
+
+# Preambles
+- None in output. Return only the specified JSON array.
