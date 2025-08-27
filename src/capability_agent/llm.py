@@ -2,10 +2,11 @@ from __future__ import annotations
 
 import os
 import re
-from typing import Dict, List
+import time
+from typing import Dict, List, Optional, Tuple, Iterable
 
 from openai import OpenAI
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, ValidationError
 from rich.console import Console
 from rich.live import Live
 from rich.panel import Panel
@@ -13,7 +14,12 @@ from rich.table import Table
 from rich.text import Text
 
 
+# =========================
+# Exceptions & Data Models
+# =========================
+
 class LLMError(Exception):
+    """Fatal error when calling the LLM (network/SDK/refusal/incomplete/etc.)."""
     pass
 
 
@@ -32,18 +38,18 @@ class UsageStats(BaseModel):
     """Comprehensive token usage statistics from LLM calls."""
     # Basic token counts
     input_tokens: int = Field(default=0, description="Number of input tokens")
-    output_tokens: int = Field(default=0, description="Number of output tokens") 
+    output_tokens: int = Field(default=0, description="Number of output tokens")
     total_tokens: int = Field(default=0, description="Total number of tokens")
-    
-    # Prompt caching details
+
+    # Prompt caching details (discounted tokens reused from cache)
     cached_tokens: int = Field(default=0, description="Number of cached prompt tokens")
-    
+
     # Output token details
     reasoning_tokens: int = Field(default=0, description="Number of reasoning tokens in output")
-    
+
     # Model information
     model_name: str = Field(default="", description="Model used")
-    
+
     def __add__(self, other: "UsageStats") -> "UsageStats":
         """Add two UsageStats together."""
         return UsageStats(
@@ -52,267 +58,365 @@ class UsageStats(BaseModel):
             total_tokens=self.total_tokens + other.total_tokens,
             cached_tokens=self.cached_tokens + other.cached_tokens,
             reasoning_tokens=self.reasoning_tokens + other.reasoning_tokens,
-            model_name=self.model_name or other.model_name
+            model_name=self.model_name or other.model_name,
         )
-    
+
     @property
     def non_cached_input_tokens(self) -> int:
         """Calculate non-cached input tokens."""
-        return self.input_tokens - self.cached_tokens
-    
+        return max(0, self.input_tokens - self.cached_tokens)
+
     @property
     def cache_hit_rate(self) -> float:
         """Calculate cache hit rate as percentage."""
-        if self.input_tokens == 0:
+        if self.input_tokens <= 0:
             return 0.0
         return (self.cached_tokens / self.input_tokens) * 100.0
-    
+
     @property
     def has_caching(self) -> bool:
         """Check if prompt caching was used."""
         return self.cached_tokens > 0
-    
+
     @property
     def has_reasoning(self) -> bool:
         """Check if reasoning tokens were used."""
         return self.reasoning_tokens > 0
 
 
-# JSON extraction helper no longer needed with structured outputs
-
+# =========================
+# Client & Config
+# =========================
 
 def ensure_client() -> OpenAI:
+    """
+    Instantiate an OpenAI client using environment variables.
+
+    Supported env vars:
+      - OPENAI_API_KEY (required)
+      - OPENAI_BASE_URL (optional; custom endpoint / proxy)
+      - OPENAI_ORG_ID   (optional)
+      - OPENAI_PROJECT_ID (optional)
+    """
     api_key = os.getenv("OPENAI_API_KEY")
     if not api_key:
         raise LLMError("Environment variable OPENAI_API_KEY is not set.")
-    return OpenAI(api_key=api_key)
+
+    kwargs = {"api_key": api_key}
+    base_url = os.getenv("OPENAI_BASE_URL")
+    if base_url:
+        kwargs["base_url"] = base_url
+    org = os.getenv("OPENAI_ORG_ID")
+    if org:
+        kwargs["organization"] = org
+    project = os.getenv("OPENAI_PROJECT_ID")
+    if project:
+        kwargs["project"] = project
+
+    return OpenAI(**kwargs)
 
 
-def call_openai(client: OpenAI, system_message: str, user_prompt: str, max_items: int) -> tuple[List[Dict[str, str]], UsageStats]:
-    """Call OpenAI Responses API and return a list of {name, description} dicts with usage stats.
-
-    Uses Responses API with structured outputs via Pydantic models.
-    Returns tuple of (items, usage_stats).
+def _default_model() -> str:
     """
-    model = os.getenv("OPENAI_MODEL") or "gpt-5-nano"  # Use a model that supports structured outputs
-    
-    try:
-        # Use parse() with text_format for structured outputs
-        response = client.responses.parse(
-            model=model,
-            input=user_prompt,
-            instructions=system_message,
-            text_format=CapabilityResponse,
-            # temperature=0.3,  # Uncomment if needed
-        )
-    except Exception as e:  # noqa: BLE001
-        raise LLMError(f"OpenAI API error: {e}") from e
- 
-    # Handle edge cases
-    if response.status == "incomplete":
-        if response.incomplete_details and response.incomplete_details.reason == "max_output_tokens":
-            raise LLMError("Response incomplete: reached max output tokens limit")
-        elif response.incomplete_details and response.incomplete_details.reason == "content_filter":
-            raise LLMError("Response incomplete: content was filtered")
-        else:
-            raise LLMError(f"Response incomplete: {response.incomplete_details}")
-    
-    # Check for refusal
-    if response.output and len(response.output) > 0:
-        first_output = response.output[0]
-        if hasattr(first_output, "content") and first_output.content and len(first_output.content) > 0:
-            first_content = first_output.content[0]
-            if hasattr(first_content, 'type') and first_content.type == "refusal":
-                raise LLMError(f"Model refused the request: {first_content.refusal}")
-    
-    # Extract parsed output
-    parsed_output = None
-    if hasattr(response, 'output') and response.output:
-        for output_item in response.output:
-            if hasattr(output_item, 'content') and output_item.content:
-                for content_item in output_item.content:
-                    if hasattr(content_item, 'parsed') and content_item.parsed:
-                        parsed_output = content_item.parsed
-                        break
-                if parsed_output:
-                    break
-    
-    # Fallback to direct output_parsed attribute  
-    if not parsed_output and hasattr(response, 'output_parsed') and response.output_parsed:
-        parsed_output = response.output_parsed
-    
-    if not parsed_output:
-        raise LLMError("No parsed output received from the model")
-    
-    # Extract usage statistics
-    usage_stats = UsageStats(model_name=model)
-    if hasattr(response, 'usage') and response.usage:
-        usage_stats.input_tokens = getattr(response.usage, 'input_tokens', 0)
-        usage_stats.output_tokens = getattr(response.usage, 'output_tokens', 0)  
-        usage_stats.total_tokens = getattr(response.usage, 'total_tokens', 0)
-        
-        # Extract prompt caching details from input_token_details or prompt_tokens_details
-        if hasattr(response.usage, 'input_token_details') and response.usage.input_token_details:
-            usage_stats.cached_tokens = getattr(response.usage.input_token_details, 'cached_tokens', 0)
-        elif hasattr(response.usage, 'prompt_tokens_details') and response.usage.prompt_tokens_details:
-            usage_stats.cached_tokens = getattr(response.usage.prompt_tokens_details, 'cached_tokens', 0)
-        
-        # Extract reasoning tokens from completion_tokens_details
-        if hasattr(response.usage, 'completion_tokens_details') and response.usage.completion_tokens_details:
-            usage_stats.reasoning_tokens = getattr(response.usage.completion_tokens_details, 'reasoning_tokens', 0)
-    
-    # Convert to expected format and limit items
+    Prefer GPT-5 series if not overridden:
+      OPENAI_MODEL, else "gpt-5-nano".
+    """
+    return os.getenv("OPENAI_MODEL") or "gpt-5-nano"
+
+
+def _common_generation_kwargs() -> dict:
+    """
+    Centralized generation defaults tuned for reliability + reproducibility.
+    Controlled via env when needed.
+
+    Supported env vars:
+      - OPENAI_TEMPERATURE (float)
+      - OPENAI_MAX_OUTPUT_TOKENS (int)
+      - OPENAI_SEED (int)  # determinism where supported
+    """
+    kwargs: dict = {}
+    if "OPENAI_TEMPERATURE" in os.environ:
+        try:
+            kwargs["temperature"] = float(os.environ["OPENAI_TEMPERATURE"])
+        except ValueError:
+            pass
+    if "OPENAI_MAX_OUTPUT_TOKENS" in os.environ:
+        try:
+            kwargs["max_output_tokens"] = int(os.environ["OPENAI_MAX_OUTPUT_TOKENS"])
+        except ValueError:
+            pass
+    if "OPENAI_SEED" in os.environ:
+        try:
+            kwargs["seed"] = int(os.environ["OPENAI_SEED"])
+        except ValueError:
+            pass
+    return kwargs
+
+
+# =========================
+# Internal helpers
+# =========================
+
+def _extract_usage(obj) -> UsageStats:
+    """
+    Normalize usage payload from Responses API into UsageStats.
+    Handles variations in SDK fields gracefully.
+    """
+    usage = getattr(obj, "usage", None)
+    model_name = getattr(obj, "model", None) or _default_model()
+    stats = UsageStats(model_name=model_name)
+
+    if not usage:
+        return stats
+
+    # Basic totals
+    stats.input_tokens = getattr(usage, "input_tokens", getattr(usage, "prompt_tokens", 0)) or 0
+    stats.output_tokens = getattr(usage, "output_tokens", getattr(usage, "completion_tokens", 0)) or 0
+    stats.total_tokens = getattr(usage, "total_tokens", stats.input_tokens + stats.output_tokens) or 0
+
+    # Prompt caching (cached tokens live under input_token_details or prompt_tokens_details)
+    itd = getattr(usage, "input_token_details", None) or getattr(usage, "prompt_tokens_details", None)
+    if itd:
+        stats.cached_tokens = getattr(itd, "cached_tokens", 0) or 0
+
+    # Reasoning tokens (can appear under completion_tokens_details or output_token_details)
+    ctd = getattr(usage, "completion_tokens_details", None) or getattr(usage, "output_token_details", None)
+    if ctd:
+        stats.reasoning_tokens = getattr(ctd, "reasoning_tokens", 0) or 0
+
+    return stats
+
+
+def _ensure_parsed_output(response) -> CapabilityResponse:
+    """
+    Get the parsed pydantic object from Responses API .parse() call
+    or from final stream response.
+    """
+    if hasattr(response, "output_parsed") and response.output_parsed is not None:
+        return response.output_parsed  # already a CapabilityResponse
+    # Fallback: search content blocks for .parsed
+    output = getattr(response, "output", None)
+    if not output:
+        raise LLMError("No output from model.")
+    for out in output:
+        for content in getattr(out, "content", []) or []:
+            parsed = getattr(content, "parsed", None)
+            if parsed:
+                return parsed
+    raise LLMError("No structured parsed output found in response.")
+
+
+def _validate_items(parsed: CapabilityResponse, max_items: int) -> List[Dict[str, str]]:
+    if not parsed or not getattr(parsed, "items", None):
+        raise LLMError("Parsed output does not contain an 'items' list.")
     items: List[Dict[str, str]] = []
-    if hasattr(parsed_output, 'items') and parsed_output.items:
-        for item in parsed_output.items[:max_items]:
-            items.append({
-                "name": item.name,
-                "description": item.description
-            })
-    else:
-        raise LLMError("Parsed output does not contain items list")
-    
-    return items, usage_stats
+    for it in parsed.items[:max_items]:
+        # Defensive validation (even though Pydantic should cover it)
+        if not it.name or not it.description:
+            continue
+        items.append({"name": it.name, "description": it.description})
+    if not items:
+        raise LLMError("No valid capability items were produced.")
+    return items
 
 
-def _extract_capabilities_from_partial_json(partial_json: str) -> List[Dict[str, str]]:
-    """Extract completed capability items from partial JSON response."""
-    capabilities = []
-    
-    # Look for complete items in the JSON
-    # Match pattern: {"name":"...", "description":"..."}
-    item_pattern = r'\{"name":\s*"([^"]+)",\s*"description":\s*"([^"]+)"\}'
-    matches = re.findall(item_pattern, partial_json)
-    
-    for name, description in matches:
-        capabilities.append({"name": name, "description": description})
-    
-    return capabilities
-
-
-def _create_capabilities_display(capabilities: List[Dict[str, str]], leaf_name: str) -> Panel:
+def _progress_panel(capabilities: List[Dict[str, str]], leaf_name: str) -> Panel:
     """Create a rich display for streaming capabilities."""
     if not capabilities:
         return Panel(
             Text("Generating capabilities...", style="italic cyan"),
-            title=f"[bold blue]{leaf_name}[/bold blue]",
-            border_style="blue"
+            title=f"[bold blue]{leaf_name}[/bold blue]" if leaf_name else "[bold blue]Generating[/bold blue]",
+            border_style="blue",
         )
-    
+
     table = Table(show_header=False, box=None, padding=(0, 1))
-    table.add_column("Name", style="bold green", width=30)
-    table.add_column("Description", style="white")
-    
+    table.add_column("Name", style="bold green", width=30, overflow="fold")
+    table.add_column("Description", style="white", overflow="fold")
+
     for cap in capabilities:
-        table.add_row(
-            cap["name"],
-            cap["description"][:80] + "..." if len(cap["description"]) > 80 else cap["description"]
-        )
-    
+        desc = cap["description"]
+        table.add_row(cap["name"], desc if len(desc) <= 160 else desc[:157] + "…")
+
     return Panel(
         table,
-        title=f"[bold blue]{leaf_name}[/bold blue] - {len(capabilities)} capabilities",
-        border_style="green"
+        title=f"[bold blue]{leaf_name}[/bold blue] - {len(capabilities)} capabilities" if leaf_name else f"{len(capabilities)} capabilities",
+        border_style="green",
     )
 
 
+def _extract_capabilities_incremental(partial_json: str) -> List[Dict[str, str]]:
+    """
+    Extract completed capability items from a (possibly broken) incremental JSON stream.
+    Tolerant, but only returns fully closed objects containing 'name' and 'description'.
+    """
+    capabilities: List[Dict[str, str]] = []
+    # Match any closed object with both keys; tolerant to ordering/whitespace
+    pattern = r'\{[^{}]*"name"\s*:\s*"([^"]+)"[^{}]*"description"\s*:\s*"([^"]+)"[^{}]*\}'
+    for name, description in re.findall(pattern, partial_json):
+        capabilities.append({"name": name, "description": description})
+    return capabilities
+
+
+def _backoff_iter(attempts: int = 5, base: float = 0.5) -> Iterable[float]:
+    """Simple jittered exponential backoff sequence."""
+    for i in range(attempts):
+        # cap to a sane ceiling
+        yield min(8.0, base * (2 ** i))
+
+
+# =========================
+# Public (drop-in) API
+# =========================
+
+def call_openai(
+    client: OpenAI,
+    system_message: str,
+    user_prompt: str,
+    max_items: int
+) -> Tuple[List[Dict[str, str]], UsageStats]:
+    """
+    Call OpenAI Responses API and return a list of {name, description} dicts with usage stats.
+
+    Uses Responses API with structured outputs via Pydantic models (responses.parse).
+    Returns tuple of (items, usage_stats).
+    """
+    model = _default_model()
+    gen_kwargs = _common_generation_kwargs()
+
+    last_exc: Optional[Exception] = None
+    for delay in _backoff_iter():
+        try:
+            # responses.parse enforces the Pydantic schema on the return path
+            response = client.responses.parse(
+                model=model,
+                instructions=system_message,  # treated like a system/developer message
+                input=user_prompt,
+                text_format=CapabilityResponse,
+                **gen_kwargs,
+            )
+
+            # Handle incomplete/filtered cases if provided by SDK
+            status = getattr(response, "status", "complete")
+            if status == "incomplete":
+                details = getattr(response, "incomplete_details", None)
+                reason = getattr(details, "reason", "unknown") if details else "unknown"
+                if reason == "max_output_tokens":
+                    raise LLMError("Response incomplete: reached max output tokens limit.")
+                if reason == "content_filter":
+                    raise LLMError("Response incomplete: content was filtered.")
+                raise LLMError(f"Response incomplete: {details!r}")
+
+            # Detect explicit refusal in content stream (defensive)
+            out = getattr(response, "output", None) or []
+            if out:
+                first = out[0]
+                for c in getattr(first, "content", []) or []:
+                    if getattr(c, "type", None) == "refusal":
+                        msg = getattr(c, "refusal", "Request refused by model.")
+                        raise LLMError(f"Model refused the request: {msg}")
+
+            parsed = _ensure_parsed_output(response)
+            items = _validate_items(parsed, max_items)
+            usage_stats = _extract_usage(response)
+            usage_stats.model_name = model
+            return items, usage_stats
+
+        except (LLMError, ValidationError) as e:
+            # Non-retryable schema/refusal/incomplete errors bubble immediately
+            raise
+        except Exception as e:  # network/5xx/rate limits => retry with backoff
+            last_exc = e
+            time.sleep(delay)
+
+    raise LLMError(f"OpenAI API error after retries: {last_exc}") from last_exc
+
+
 def call_openai_streaming(
-    client: OpenAI, 
-    system_message: str, 
-    user_prompt: str, 
+    client: OpenAI,
+    system_message: str,
+    user_prompt: str,
     max_items: int,
     show_progress: bool = True,
     leaf_name: str = ""
-) -> tuple[List[Dict[str, str]], UsageStats]:
-    """Call OpenAI Responses API with streaming support and live capability display.
-    
+) -> Tuple[List[Dict[str, str]], UsageStats]:
+    """
+    Call OpenAI Responses API with streaming support and live capability display.
+
     Uses Responses API with structured outputs and shows capabilities as they're generated.
     Returns tuple of (items, usage_stats).
     """
-    model = os.getenv("OPENAI_MODEL") or "gpt-5-nano"
+    model = _default_model()
+    gen_kwargs = _common_generation_kwargs()
     console = Console()
-    
-    try:
-        with client.responses.stream(
-            model=model,
-            input=user_prompt,
-            instructions=system_message,
-            text_format=CapabilityResponse,
-            # temperature=0.3,  # Uncomment if needed
-        ) as stream:
-            if show_progress:
-                partial_content = ""
-                last_capabilities = []
-                
-                with Live(
-                    _create_capabilities_display([], leaf_name),
-                    console=console,
-                    refresh_per_second=4,
-                    transient=True
-                ) as live:
+
+    last_exc: Optional[Exception] = None
+    for delay in _backoff_iter():
+        try:
+            with client.responses.stream(
+                model=model,
+                instructions=system_message,
+                input=user_prompt,
+                text_format=CapabilityResponse,
+                **gen_kwargs,
+            ) as stream:
+
+                partial_text: str = ""
+                last_snapshot: List[Dict[str, str]] = []
+
+                if show_progress:
+                    with Live(
+                        _progress_panel([], leaf_name),
+                        console=console,
+                        refresh_per_second=6,
+                        transient=True,
+                    ) as live:
+                        for event in stream:
+                            etype = getattr(event, "type", "")
+                            # Explicit refusals
+                            if etype == "response.refusal.delta":
+                                delta = getattr(event, "delta", "") or "Request refused by model."
+                                raise LLMError(f"Model refused: {delta}")
+                            # Text deltas (we parse incrementally for preview)
+                            if etype == "response.output_text.delta":
+                                partial_text += getattr(event, "delta", "")
+                                snapshot = _extract_capabilities_incremental(partial_text)
+                                # Update only when something changes to reduce flicker
+                                if snapshot and snapshot != last_snapshot:
+                                    live.update(_progress_panel(snapshot, leaf_name))
+                                    last_snapshot = snapshot
+                            # Hard errors mid-stream
+                            if etype == "response.error":
+                                err = getattr(event, "error", "unknown streaming error")
+                                raise LLMError(f"Stream error: {err}")
+                            # No action needed on created/finished unless we want timestamps
+                            # etype == "response.completed" handled after loop
+
+                        # After stream iteration completes, we’ll still call get_final_response()
+                        # to obtain structured output + usage.
+                else:
+                    # Consume events without UI (still surface refusal/errors)
                     for event in stream:
-                        if event.type == "response.refusal.delta":
-                            raise LLMError(f"Model refused: {event.delta}")
-                        elif event.type == "response.output_text.delta":
-                            # Accumulate partial content
-                            partial_content += event.delta
-                            
-                            # Extract capabilities from partial JSON
-                            capabilities = _extract_capabilities_from_partial_json(partial_content)
-                            
-                            # Update display if we have new capabilities
-                            if capabilities != last_capabilities:
-                                live.update(_create_capabilities_display(capabilities, leaf_name))
-                                last_capabilities = capabilities
-                                
-                        elif event.type == "response.error":
-                            raise LLMError(f"Stream error: {event.error}")
-                        elif event.type == "response.completed":
-                            # Final update
-                            final_capabilities = _extract_capabilities_from_partial_json(partial_content)
-                            live.update(_create_capabilities_display(final_capabilities, leaf_name))
-            else:
-                # No progress display
-                for event in stream:
-                    if event.type == "response.refusal.delta":
-                        raise LLMError(f"Model refused: {event.delta}")
-                    elif event.type == "response.error":
-                        raise LLMError(f"Stream error: {event.error}")
-            
-            # Get final response
-            final_response = stream.get_final_response()
-            
-            if not final_response or not final_response.output_parsed:
-                raise LLMError("No parsed output received from streaming")
-            
-            # Extract usage statistics
-            usage_stats = UsageStats(model_name=model)
-            if hasattr(final_response, 'usage') and final_response.usage:
-                usage_stats.input_tokens = getattr(final_response.usage, 'input_tokens', 0)
-                usage_stats.output_tokens = getattr(final_response.usage, 'output_tokens', 0)
-                usage_stats.total_tokens = getattr(final_response.usage, 'total_tokens', 0)
-                
-                # Extract prompt caching details from input_token_details or prompt_tokens_details
-                if hasattr(final_response.usage, 'input_token_details') and final_response.usage.input_token_details:
-                    usage_stats.cached_tokens = getattr(final_response.usage.input_token_details, 'cached_tokens', 0)
-                elif hasattr(final_response.usage, 'prompt_tokens_details') and final_response.usage.prompt_tokens_details:
-                    usage_stats.cached_tokens = getattr(final_response.usage.prompt_tokens_details, 'cached_tokens', 0)
-                
-                # Extract reasoning tokens from completion_tokens_details
-                if hasattr(final_response.usage, 'completion_tokens_details') and final_response.usage.completion_tokens_details:
-                    usage_stats.reasoning_tokens = getattr(final_response.usage.completion_tokens_details, 'reasoning_tokens', 0)
-            
-            # Convert to expected format and limit items
-            items_collected = []
-            for item in final_response.output_parsed.items[:max_items]:
-                items_collected.append({
-                    "name": item.name,
-                    "description": item.description
-                })
-        
-        return items_collected, usage_stats
-        
-    except Exception as e:  # noqa: BLE001
-        if isinstance(e, LLMError):
+                        etype = getattr(event, "type", "")
+                        if etype == "response.refusal.delta":
+                            raise LLMError(f"Model refused: {getattr(event, 'delta', '')}")
+                        if etype == "response.error":
+                            raise LLMError(f"Stream error: {getattr(event, 'error', '')}")
+
+                # Finalize + parse
+                final = stream.get_final_response()
+                if not final:
+                    raise LLMError("No final response received from streaming.")
+
+                parsed = _ensure_parsed_output(final)
+                items = _validate_items(parsed, max_items)
+                usage_stats = _extract_usage(final)
+                usage_stats.model_name = model
+                return items, usage_stats
+
+        except (LLMError, ValidationError):
             raise
-        raise LLMError(f"Streaming error: {e}") from e
+        except Exception as e:
+            last_exc = e
+            time.sleep(delay)
+
+    raise LLMError(f"Streaming error after retries: {last_exc}") from last_exc
