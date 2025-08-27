@@ -17,7 +17,7 @@ from rich.progress import (
 from rich.theme import Theme
 
 from .io_utils import ContextFormat, ContextOptions, ensure_dir, safe_filename, timestamp_for_filename, save_progress
-from .llm import call_openai, call_openai_streaming, ensure_client
+from .llm import call_openai, call_openai_streaming, ensure_client, UsageStats
 from .models import Capability, CapabilityList
 from .prompting import build_prompt_context, render_prompt
 
@@ -37,15 +37,16 @@ def augment_model(
     use_streaming: bool = False,
     restart_mode: bool = False,
     input_path: Optional[Path] = None,
-) -> CapabilityList:
+) -> tuple[CapabilityList, UsageStats]:
     client = ensure_client()
+    total_usage = UsageStats()  # Initialize usage tracking
 
     # Use different leaf selection based on restart mode
     if restart_mode:
         leaves = model.leaves_for_generation()
         if not leaves:
             console.print("No capabilities need generation. All leaves already generated.", style="info")
-            return model
+            return model, total_usage
     else:
         leaves = model.leaves()
     
@@ -70,7 +71,7 @@ def augment_model(
             current_data = [c.model_dump() for c in model.root] + [c.model_dump() for c in new_nodes]
             save_progress(input_path, current_data)
 
-    def generate_children(leaf: Capability) -> Sequence[Capability]:
+    def generate_children(leaf: Capability) -> tuple[Sequence[Capability], UsageStats]:
         # Build prompt context and render
         context = build_prompt_context(model, leaf, context_opts, context_format)
         context["max_capabilities"] = max_capabilities
@@ -93,12 +94,12 @@ def augment_model(
 
         # Call LLM (one generation per leaf)
         if use_streaming and tasks <= 1:  # Only use streaming in serial mode
-            generated = call_openai_streaming(
+            generated, usage_stats = call_openai_streaming(
                 client, system_message, user_prompt, max_capabilities, 
                 show_progress=True, leaf_name=leaf.name
             )
         else:
-            generated = call_openai(
+            generated, usage_stats = call_openai(
                 client, system_message, user_prompt, max_capabilities
             )
 
@@ -122,7 +123,7 @@ def augment_model(
         
         # Save progress after successful generation
         save_leaf_progress(leaf)
-        return children
+        return children, usage_stats
 
     # Handle streaming vs concurrent execution differently
     # Force serial execution in restart mode to ensure atomic progress saves
@@ -134,7 +135,9 @@ def augment_model(
             console.print(f"[info]Streaming generation for {len(leaves)} leaves...[/info]")
         for i, leaf in enumerate(leaves, 1):
             console.print(f"[info]Processing leaf {i}/{len(leaves)}: {leaf.name}[/info]")
-            new_nodes.extend(generate_children(leaf))
+            children, usage = generate_children(leaf)
+            new_nodes.extend(children)
+            total_usage += usage
     else:
         # Concurrent execution or non-streaming - use overall progress bar
         with Progress(
@@ -153,7 +156,9 @@ def augment_model(
             if tasks <= 1 or len(leaves) <= 1:
                 for leaf in leaves:
                     progress.update(overall_task, description=f"Generating: {leaf.name}")
-                    new_nodes.extend(generate_children(leaf))
+                    children, usage = generate_children(leaf)
+                    new_nodes.extend(children)
+                    total_usage += usage
                     progress.advance(overall_task, 1)
             else:
                 progress.update(overall_task, description=f"Generating with {tasks} workers…")
@@ -162,8 +167,9 @@ def augment_model(
                     for fut in as_completed(future_map):
                         leaf = future_map[fut]
                         try:
-                            children = fut.result()
+                            children, usage = fut.result()
                             new_nodes.extend(children)
+                            total_usage += usage
                         except Exception as e:  # noqa: BLE001
                             # Fail fast on any leaf error
                             raise e
@@ -178,4 +184,4 @@ def augment_model(
         if c.id in seen:
             raise ValueError(f"Duplicate id detected in output: {c.id}")
         seen.add(c.id)
-    return output
+    return output, total_usage

@@ -6,6 +6,7 @@ from typing import Optional
 import typer
 from rich.console import Console
 from rich.panel import Panel
+from rich.table import Table
 from rich.theme import Theme
 
 from .io_utils import (
@@ -88,7 +89,7 @@ def run(
         console.print(f"Restart mode: will update {input} in-place", style="info")
 
     try:
-        enhanced = augment_model(
+        enhanced, usage_stats = augment_model(
             model=model,
             template_path=template,
             context_opts=ctx_opts,
@@ -102,7 +103,10 @@ def run(
             input_path=input if restart else None,
         )
     except Exception as e:  # noqa: BLE001
+        import traceback
         console.print(f"Augmentation failed: {e}", style="error")
+        console.print("Full traceback:", style="error")
+        console.print(traceback.format_exc(), style="error")
         raise typer.Exit(1)
 
     # Emit as plain list of dicts
@@ -112,6 +116,43 @@ def run(
         console.print(f"Failed to write output: {e}", style="error")
         raise typer.Exit(1)
     console.print(f"Wrote {len(enhanced.root)} nodes -> {output_path}", style="info")
+    
+    # Display usage statistics summary
+    if usage_stats.total_tokens > 0:
+        usage_table = Table(title="📊 Usage Statistics")
+        usage_table.add_column("Metric", style="cyan")
+        usage_table.add_column("Value", style="green")
+        
+        # Basic information
+        usage_table.add_row("Model", usage_stats.model_name)
+        usage_table.add_row("Total Tokens", f"{usage_stats.total_tokens:,}")
+        
+        # Input token breakdown
+        usage_table.add_row("", "")  # Separator
+        usage_table.add_row("Input Tokens", f"{usage_stats.input_tokens:,}")
+        
+        if usage_stats.has_caching:
+            usage_table.add_row("  └─ Cached Tokens", f"{usage_stats.cached_tokens:,}")
+            usage_table.add_row("  └─ Non-cached Tokens", f"{usage_stats.non_cached_input_tokens:,}")
+            usage_table.add_row("  └─ Cache Hit Rate", f"{usage_stats.cache_hit_rate:.1f}%")
+        else:
+            usage_table.add_row("  └─ All New Tokens", f"{usage_stats.input_tokens:,}")
+            
+        # Output token breakdown  
+        usage_table.add_row("", "")  # Separator
+        usage_table.add_row("Output Tokens", f"{usage_stats.output_tokens:,}")
+        
+        if usage_stats.has_reasoning:
+            usage_table.add_row("  └─ Reasoning Tokens", f"{usage_stats.reasoning_tokens:,}")
+            regular_tokens = usage_stats.output_tokens - usage_stats.reasoning_tokens
+            usage_table.add_row("  └─ Regular Tokens", f"{regular_tokens:,}")
+        
+        console.print()
+        console.print(usage_table)
+        
+        # Show cost savings information if caching was used
+        if usage_stats.has_caching:
+            console.print(f"💡 [bold green]Cost savings:[/bold green] You saved ~50% on {usage_stats.cached_tokens:,} cached tokens!", style="info")
 
 
 def main() -> None:

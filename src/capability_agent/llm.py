@@ -28,6 +28,56 @@ class CapabilityResponse(BaseModel):
     items: List[CapabilityItem] = Field(..., description="List of capability items")
 
 
+class UsageStats(BaseModel):
+    """Comprehensive token usage statistics from LLM calls."""
+    # Basic token counts
+    input_tokens: int = Field(default=0, description="Number of input tokens")
+    output_tokens: int = Field(default=0, description="Number of output tokens") 
+    total_tokens: int = Field(default=0, description="Total number of tokens")
+    
+    # Prompt caching details
+    cached_tokens: int = Field(default=0, description="Number of cached prompt tokens")
+    
+    # Output token details
+    reasoning_tokens: int = Field(default=0, description="Number of reasoning tokens in output")
+    
+    # Model information
+    model_name: str = Field(default="", description="Model used")
+    
+    def __add__(self, other: "UsageStats") -> "UsageStats":
+        """Add two UsageStats together."""
+        return UsageStats(
+            input_tokens=self.input_tokens + other.input_tokens,
+            output_tokens=self.output_tokens + other.output_tokens,
+            total_tokens=self.total_tokens + other.total_tokens,
+            cached_tokens=self.cached_tokens + other.cached_tokens,
+            reasoning_tokens=self.reasoning_tokens + other.reasoning_tokens,
+            model_name=self.model_name or other.model_name
+        )
+    
+    @property
+    def non_cached_input_tokens(self) -> int:
+        """Calculate non-cached input tokens."""
+        return self.input_tokens - self.cached_tokens
+    
+    @property
+    def cache_hit_rate(self) -> float:
+        """Calculate cache hit rate as percentage."""
+        if self.input_tokens == 0:
+            return 0.0
+        return (self.cached_tokens / self.input_tokens) * 100.0
+    
+    @property
+    def has_caching(self) -> bool:
+        """Check if prompt caching was used."""
+        return self.cached_tokens > 0
+    
+    @property
+    def has_reasoning(self) -> bool:
+        """Check if reasoning tokens were used."""
+        return self.reasoning_tokens > 0
+
+
 # JSON extraction helper no longer needed with structured outputs
 
 
@@ -38,12 +88,13 @@ def ensure_client() -> OpenAI:
     return OpenAI(api_key=api_key)
 
 
-def call_openai(client: OpenAI, system_message: str, user_prompt: str, max_items: int) -> List[Dict[str, str]]:
-    """Call OpenAI Responses API and return a list of {name, description} dicts.
+def call_openai(client: OpenAI, system_message: str, user_prompt: str, max_items: int) -> tuple[List[Dict[str, str]], UsageStats]:
+    """Call OpenAI Responses API and return a list of {name, description} dicts with usage stats.
 
     Uses Responses API with structured outputs via Pydantic models.
+    Returns tuple of (items, usage_stats).
     """
-    model = os.getenv("OPENAI_MODEL") or "gpt-4o-2024-08-06"  # Use a model that supports structured outputs
+    model = os.getenv("OPENAI_MODEL") or "gpt-5-nano"  # Use a model that supports structured outputs
     
     try:
         # Use parse() with text_format for structured outputs
@@ -56,7 +107,7 @@ def call_openai(client: OpenAI, system_message: str, user_prompt: str, max_items
         )
     except Exception as e:  # noqa: BLE001
         raise LLMError(f"OpenAI API error: {e}") from e
-
+ 
     # Handle edge cases
     if response.status == "incomplete":
         if response.incomplete_details and response.incomplete_details.reason == "max_output_tokens":
@@ -69,25 +120,59 @@ def call_openai(client: OpenAI, system_message: str, user_prompt: str, max_items
     # Check for refusal
     if response.output and len(response.output) > 0:
         first_output = response.output[0]
-        if hasattr(first_output, "content") and len(first_output.content) > 0:
+        if hasattr(first_output, "content") and first_output.content and len(first_output.content) > 0:
             first_content = first_output.content[0]
-            if first_content.type == "refusal":
+            if hasattr(first_content, 'type') and first_content.type == "refusal":
                 raise LLMError(f"Model refused the request: {first_content.refusal}")
     
     # Extract parsed output
-    parsed_output = response.output_parsed
+    parsed_output = None
+    if hasattr(response, 'output') and response.output:
+        for output_item in response.output:
+            if hasattr(output_item, 'content') and output_item.content:
+                for content_item in output_item.content:
+                    if hasattr(content_item, 'parsed') and content_item.parsed:
+                        parsed_output = content_item.parsed
+                        break
+                if parsed_output:
+                    break
+    
+    # Fallback to direct output_parsed attribute  
+    if not parsed_output and hasattr(response, 'output_parsed') and response.output_parsed:
+        parsed_output = response.output_parsed
+    
     if not parsed_output:
         raise LLMError("No parsed output received from the model")
     
+    # Extract usage statistics
+    usage_stats = UsageStats(model_name=model)
+    if hasattr(response, 'usage') and response.usage:
+        usage_stats.input_tokens = getattr(response.usage, 'input_tokens', 0)
+        usage_stats.output_tokens = getattr(response.usage, 'output_tokens', 0)  
+        usage_stats.total_tokens = getattr(response.usage, 'total_tokens', 0)
+        
+        # Extract prompt caching details from input_token_details or prompt_tokens_details
+        if hasattr(response.usage, 'input_token_details') and response.usage.input_token_details:
+            usage_stats.cached_tokens = getattr(response.usage.input_token_details, 'cached_tokens', 0)
+        elif hasattr(response.usage, 'prompt_tokens_details') and response.usage.prompt_tokens_details:
+            usage_stats.cached_tokens = getattr(response.usage.prompt_tokens_details, 'cached_tokens', 0)
+        
+        # Extract reasoning tokens from completion_tokens_details
+        if hasattr(response.usage, 'completion_tokens_details') and response.usage.completion_tokens_details:
+            usage_stats.reasoning_tokens = getattr(response.usage.completion_tokens_details, 'reasoning_tokens', 0)
+    
     # Convert to expected format and limit items
     items: List[Dict[str, str]] = []
-    for item in parsed_output.items[:max_items]:
-        items.append({
-            "name": item.name,
-            "description": item.description
-        })
+    if hasattr(parsed_output, 'items') and parsed_output.items:
+        for item in parsed_output.items[:max_items]:
+            items.append({
+                "name": item.name,
+                "description": item.description
+            })
+    else:
+        raise LLMError("Parsed output does not contain items list")
     
-    return items
+    return items, usage_stats
 
 
 def _extract_capabilities_from_partial_json(partial_json: str) -> List[Dict[str, str]]:
@@ -138,12 +223,13 @@ def call_openai_streaming(
     max_items: int,
     show_progress: bool = True,
     leaf_name: str = ""
-) -> List[Dict[str, str]]:
+) -> tuple[List[Dict[str, str]], UsageStats]:
     """Call OpenAI Responses API with streaming support and live capability display.
     
     Uses Responses API with structured outputs and shows capabilities as they're generated.
+    Returns tuple of (items, usage_stats).
     """
-    model = os.getenv("OPENAI_MODEL") or "gpt-4o-2024-08-06"
+    model = os.getenv("OPENAI_MODEL") or "gpt-5-nano"
     console = Console()
     
     try:
@@ -199,6 +285,23 @@ def call_openai_streaming(
             if not final_response or not final_response.output_parsed:
                 raise LLMError("No parsed output received from streaming")
             
+            # Extract usage statistics
+            usage_stats = UsageStats(model_name=model)
+            if hasattr(final_response, 'usage') and final_response.usage:
+                usage_stats.input_tokens = getattr(final_response.usage, 'input_tokens', 0)
+                usage_stats.output_tokens = getattr(final_response.usage, 'output_tokens', 0)
+                usage_stats.total_tokens = getattr(final_response.usage, 'total_tokens', 0)
+                
+                # Extract prompt caching details from input_token_details or prompt_tokens_details
+                if hasattr(final_response.usage, 'input_token_details') and final_response.usage.input_token_details:
+                    usage_stats.cached_tokens = getattr(final_response.usage.input_token_details, 'cached_tokens', 0)
+                elif hasattr(final_response.usage, 'prompt_tokens_details') and final_response.usage.prompt_tokens_details:
+                    usage_stats.cached_tokens = getattr(final_response.usage.prompt_tokens_details, 'cached_tokens', 0)
+                
+                # Extract reasoning tokens from completion_tokens_details
+                if hasattr(final_response.usage, 'completion_tokens_details') and final_response.usage.completion_tokens_details:
+                    usage_stats.reasoning_tokens = getattr(final_response.usage.completion_tokens_details, 'reasoning_tokens', 0)
+            
             # Convert to expected format and limit items
             items_collected = []
             for item in final_response.output_parsed.items[:max_items]:
@@ -207,7 +310,7 @@ def call_openai_streaming(
                     "description": item.description
                 })
         
-        return items_collected
+        return items_collected, usage_stats
         
     except Exception as e:  # noqa: BLE001
         if isinstance(e, LLMError):
