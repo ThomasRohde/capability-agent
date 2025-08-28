@@ -4,6 +4,7 @@ import uuid
 from pathlib import Path
 from typing import List, Sequence, Optional
 from concurrent.futures import ThreadPoolExecutor, as_completed
+import threading
 
 from rich.console import Console
 from rich.progress import (
@@ -51,25 +52,27 @@ def augment_model(
         leaves = model.leaves()
     
     new_nodes: List[Capability] = []
+    progress_lock = threading.Lock()  # Thread-safe progress saving
     
     def save_leaf_progress(leaf: Capability) -> None:
         """Mark a leaf as generated and save progress if in restart mode."""
         if restart_mode and input_path:
-            # Update the capability attribute for the processed leaf
-            leaf_dict = leaf.model_dump()
-            leaf_dict['capability'] = 1
-            
-            # Find and update the leaf in the current model
-            for i, c in enumerate(model.root):
-                if c.id == leaf.id:
-                    # Create updated capability and replace in model
-                    updated_cap = Capability.model_validate(leaf_dict)
-                    model.root[i] = updated_cap
-                    break
-            
-            # Save progress
-            current_data = [c.model_dump() for c in model.root] + [c.model_dump() for c in new_nodes]
-            save_progress(input_path, current_data)
+            with progress_lock:  # Ensure thread-safe progress saving
+                # Update the capability attribute for the processed leaf
+                leaf_dict = leaf.model_dump()
+                leaf_dict['capability'] = 1
+                
+                # Find and update the leaf in the current model
+                for i, c in enumerate(model.root):
+                    if c.id == leaf.id:
+                        # Create updated capability and replace in model
+                        updated_cap = Capability.model_validate(leaf_dict)
+                        model.root[i] = updated_cap
+                        break
+                
+                # Save progress
+                current_data = [c.model_dump() for c in model.root] + [c.model_dump() for c in new_nodes]
+                save_progress(input_path, current_data)
 
     def generate_children(leaf: Capability) -> tuple[Sequence[Capability], UsageStats]:
         # Build prompt context and render
@@ -126,13 +129,9 @@ def augment_model(
         return children, usage_stats
 
     # Handle streaming vs concurrent execution differently
-    # Force serial execution in restart mode to ensure atomic progress saves
-    if (use_streaming and tasks <= 1) or restart_mode:
-        # Serial execution with streaming or restart mode - no outer progress bar to avoid conflicts
-        if restart_mode:
-            console.print(f"[info]Restart mode: processing {len(leaves)} remaining leaves...[/info]")
-        else:
-            console.print(f"[info]Streaming generation for {len(leaves)} leaves...[/info]")
+    if use_streaming and tasks <= 1:
+        # Serial execution with streaming - no outer progress bar to avoid conflicts
+        console.print(f"[info]Streaming generation for {len(leaves)} leaves...[/info]")
         for i, leaf in enumerate(leaves, 1):
             console.print(f"[info]Processing leaf {i}/{len(leaves)}: {leaf.name}[/info]")
             children, usage = generate_children(leaf)
@@ -140,6 +139,9 @@ def augment_model(
             total_usage += usage
     else:
         # Concurrent execution or non-streaming - use overall progress bar
+        if restart_mode:
+            console.print(f"[info]Restart mode: processing {len(leaves)} remaining leaves with {tasks} workers...[/info]")
+        
         with Progress(
             SpinnerColumn(style="info"),
             TextColumn("[progress.description]{task.description}"),
@@ -149,9 +151,8 @@ def augment_model(
             console=console,
             transient=True,
         ) as progress:
-            overall_task = progress.add_task(
-                "Generating sub-capabilities", total=len(leaves)
-            )
+            task_description = "Generating sub-capabilities (restart mode)" if restart_mode else "Generating sub-capabilities"
+            overall_task = progress.add_task(task_description, total=len(leaves))
 
             if tasks <= 1 or len(leaves) <= 1:
                 for leaf in leaves:
