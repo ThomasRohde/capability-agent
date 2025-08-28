@@ -1,7 +1,11 @@
 {
   "permissions": {
     "allow": [
-      "Bash(ruff check:*)"
+      "Bash(ruff check:*)",
+      "WebFetch(domain:github.com)",
+      "WebFetch(domain:til.simonwillison.net)",
+      "Bash(uv run:*)",
+      "Bash(grep:*)"
     ],
     "deny": [],
     "ask": []

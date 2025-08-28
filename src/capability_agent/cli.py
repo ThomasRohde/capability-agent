@@ -2,6 +2,7 @@ from __future__ import annotations
 
 from pathlib import Path
 from typing import Optional
+from enum import Enum
 
 import typer
 from rich.console import Console
@@ -18,6 +19,13 @@ from .io_utils import (
 )
 from .models import validate_model
 from .service import augment_model
+
+
+class LogLevel(str, Enum):
+    """Log levels for OpenAI request/response logging."""
+    NONE = "none"
+    BASIC = "basic"
+    FULL = "full"
 
 
 app = typer.Typer(help="Augment a business capability model by generating sub-capabilities for each leaf.")
@@ -45,6 +53,8 @@ def run(
     ),
     streaming: bool = typer.Option(False, "--streaming", help="Use streaming API for real-time progress (requires --tasks 1)"),
     restart: bool = typer.Option(False, "--restart", help="Resume generation from input file, ignoring output option"),
+    log_dir: Path = typer.Option(Path("./logs"), "--log-dir", help="Directory to write OpenAI request/response logs"),
+    log_level: LogLevel = typer.Option(LogLevel.NONE, "--log-level", help="OpenAI logging level: none, basic, or full"),
 ):
     """Augment INPUT model and write enhanced OUTPUT as JSON array."""
     console.print(Panel.fit("business-capgen: Augmenting capability model", title="capability-agent"))
@@ -75,7 +85,7 @@ def run(
         raise typer.Exit(1)
 
     # Resolve log prompts directory
-    log_dir: Optional[Path] = log_prompts
+    log_prompts_dir: Optional[Path] = log_prompts
 
     # Validate streaming configuration
     if streaming and tasks > 1:
@@ -97,10 +107,12 @@ def run(
             system_message=system_message,
             max_capabilities=max_capabilities,
             tasks=tasks,
-            log_prompts_dir=log_dir,
+            log_prompts_dir=log_prompts_dir,
             use_streaming=streaming,
             restart_mode=restart,
             input_path=input if restart else None,
+            openai_log_dir=log_dir if log_level != LogLevel.NONE else None,
+            openai_log_level=log_level.value,
         )
     except Exception as e:  # noqa: BLE001
         import traceback

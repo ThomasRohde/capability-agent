@@ -38,8 +38,10 @@ def augment_model(
     use_streaming: bool = False,
     restart_mode: bool = False,
     input_path: Optional[Path] = None,
+    openai_log_dir: Optional[Path] = None,
+    openai_log_level: str = "none",
 ) -> tuple[CapabilityList, UsageStats]:
-    client = ensure_client()
+    client = ensure_client(openai_log_dir, openai_log_level)
     total_usage = UsageStats()  # Initialize usage tracking
 
     # Use different leaf selection based on restart mode

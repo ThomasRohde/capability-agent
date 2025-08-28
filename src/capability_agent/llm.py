@@ -1,10 +1,15 @@
 from __future__ import annotations
 
+import json
+import logging
 import os
 import re
 import time
+from datetime import datetime
+from pathlib import Path
 from typing import Dict, List, Optional, Tuple, Iterable
 
+import httpx
 from openai import OpenAI
 from pydantic import BaseModel, Field, ValidationError
 from rich.console import Console
@@ -85,10 +90,159 @@ class UsageStats(BaseModel):
 
 
 # =========================
+# Logging Infrastructure
+# =========================
+
+class LoggingResponse(httpx.Response):
+    """Custom response that logs response data as it's consumed."""
+    
+    def __init__(self, *args, logger: Optional[logging.Logger] = None, log_level: str = "basic", **kwargs):
+        super().__init__(*args, **kwargs)
+        self.logger = logger
+        self.log_level = log_level
+        self._response_body = b""
+        
+    def iter_bytes(self, *args, **kwargs):
+        """Override to capture response data for logging."""
+        for chunk in super().iter_bytes(*args, **kwargs):
+            if self.logger and self.log_level == "full":
+                self._response_body += chunk
+            yield chunk
+            
+    def read(self):
+        """Override to capture response data for logging."""
+        content = super().read()
+        if self.logger and self.log_level == "full":
+            self._response_body = content
+        return content
+        
+
+class LoggingTransport(httpx.BaseTransport):
+    """Custom transport that logs OpenAI requests and responses."""
+    
+    def __init__(self, transport: httpx.BaseTransport, logger: Optional[logging.Logger] = None, log_level: str = "basic"):
+        self.transport = transport
+        self.logger = logger
+        self.log_level = log_level
+        
+    def handle_request(self, request: httpx.Request) -> httpx.Response:
+        """Handle request with logging."""
+        start_time = time.time()
+        
+        # Log request
+        if self.logger:
+            self._log_request(request, start_time)
+            
+        # Execute request
+        response = self.transport.handle_request(request)
+        
+        # Create logging response wrapper
+        logging_response = LoggingResponse(
+            status_code=response.status_code,
+            headers=response.headers,
+            stream=response.stream,
+            extensions=response.extensions,
+            logger=self.logger,
+            log_level=self.log_level,
+        )
+        
+        # Log response
+        if self.logger:
+            self._log_response(request, logging_response, time.time() - start_time)
+            
+        return logging_response
+    
+    def _log_request(self, request: httpx.Request, timestamp: float):
+        """Log the outgoing request."""
+        log_data = {
+            "timestamp": datetime.fromtimestamp(timestamp).isoformat(),
+            "type": "request",
+            "method": request.method,
+            "url": str(request.url),
+            "headers": dict(request.headers) if self.log_level == "full" else {"content-type": request.headers.get("content-type")},
+        }
+        
+        if self.log_level == "full" and request.content:
+            try:
+                # Try to parse as JSON for better readability
+                content = json.loads(request.content.decode("utf-8"))
+                log_data["body"] = content
+            except (json.JSONDecodeError, UnicodeDecodeError):
+                log_data["body"] = request.content.decode("utf-8", errors="replace")
+        
+        self.logger.info(json.dumps(log_data, ensure_ascii=False))
+    
+    def _log_response(self, request: httpx.Request, response: LoggingResponse, duration: float):
+        """Log the response."""
+        log_data = {
+            "timestamp": datetime.now().isoformat(),
+            "type": "response", 
+            "status_code": response.status_code,
+            "duration_seconds": round(duration, 3),
+            "url": str(request.url),
+        }
+        
+        if self.log_level == "basic":
+            # Extract usage stats from headers if available
+            if "openai-processing-ms" in response.headers:
+                log_data["openai_processing_ms"] = response.headers["openai-processing-ms"]
+            if "x-ratelimit-remaining-requests" in response.headers:
+                log_data["ratelimit_remaining_requests"] = response.headers["x-ratelimit-remaining-requests"]
+            if "x-ratelimit-remaining-tokens" in response.headers:
+                log_data["ratelimit_remaining_tokens"] = response.headers["x-ratelimit-remaining-tokens"]
+                
+        elif self.log_level == "full":
+            log_data["headers"] = dict(response.headers)
+            if hasattr(response, "_response_body") and response._response_body:
+                try:
+                    # Try to parse as JSON for better readability
+                    content = json.loads(response._response_body.decode("utf-8"))
+                    log_data["body"] = content
+                except (json.JSONDecodeError, UnicodeDecodeError):
+                    log_data["body"] = response._response_body.decode("utf-8", errors="replace")
+        
+        self.logger.info(json.dumps(log_data, ensure_ascii=False))
+
+
+def setup_openai_logging(log_dir: Path, log_level: str) -> Optional[logging.Logger]:
+    """Set up logging for OpenAI requests and responses."""
+    if log_level == "none":
+        return None
+        
+    # Create log directory if it doesn't exist
+    log_dir.mkdir(parents=True, exist_ok=True)
+    
+    # Create timestamped log file
+    timestamp = datetime.now().strftime("%Y-%m-%d-%H%M%S")
+    log_file = log_dir / f"openai-requests-{timestamp}.log"
+    
+    # Set up logger
+    logger = logging.getLogger("openai_requests")
+    logger.setLevel(logging.INFO)
+    
+    # Remove existing handlers to avoid duplicates
+    for handler in logger.handlers[:]:
+        logger.removeHandler(handler)
+    
+    # Add file handler
+    handler = logging.FileHandler(log_file, encoding="utf-8")
+    handler.setLevel(logging.INFO)
+    
+    # Use simple format since we're logging JSON
+    formatter = logging.Formatter("%(message)s")
+    handler.setFormatter(formatter)
+    
+    logger.addHandler(handler)
+    logger.propagate = False  # Don't propagate to root logger
+    
+    return logger
+
+
+# =========================
 # Client & Config
 # =========================
 
-def ensure_client() -> OpenAI:
+def ensure_client(log_dir: Optional[Path] = None, log_level: str = "none") -> OpenAI:
     """
     Instantiate an OpenAI client using environment variables.
 
@@ -97,6 +251,10 @@ def ensure_client() -> OpenAI:
       - OPENAI_BASE_URL (optional; custom endpoint / proxy)
       - OPENAI_ORG_ID   (optional)
       - OPENAI_PROJECT_ID (optional)
+    
+    Args:
+        log_dir: Directory to write request/response logs (if logging enabled)
+        log_level: Logging level ("none", "basic", or "full")
     """
     api_key = os.getenv("OPENAI_API_KEY")
     if not api_key:
@@ -112,6 +270,18 @@ def ensure_client() -> OpenAI:
     project = os.getenv("OPENAI_PROJECT_ID")
     if project:
         kwargs["project"] = project
+
+    # Add custom transport for logging if enabled
+    if log_dir and log_level != "none":
+        logger = setup_openai_logging(log_dir, log_level)
+        if logger:
+            # Create base transport (HTTP or async)
+            base_transport = httpx.HTTPTransport()
+            logging_transport = LoggingTransport(base_transport, logger, log_level)
+            
+            # Create custom HTTP client with logging transport
+            http_client = httpx.Client(transport=logging_transport)
+            kwargs["http_client"] = http_client
 
     return OpenAI(**kwargs)
 
@@ -321,7 +491,7 @@ def call_openai(
             usage_stats.model_name = model
             return items, usage_stats
 
-        except (LLMError, ValidationError) as e:
+        except (LLMError, ValidationError):
             # Non-retryable schema/refusal/incomplete errors bubble immediately
             raise
         except Exception as e:  # network/5xx/rate limits => retry with backoff
