@@ -3,7 +3,9 @@ from __future__ import annotations
 import json
 from dataclasses import dataclass
 from enum import Enum
+import os
 import re
+import time
 from datetime import datetime
 from pathlib import Path
 from typing import Any, Dict, List, Optional
@@ -100,7 +102,29 @@ def save_progress(path: Path, model_data: List[Dict[str, Any]]) -> None:
     temp_path = path.with_suffix(path.suffix + ".tmp")
     try:
         write_json_file(temp_path, model_data)
-        temp_path.replace(path)
+        
+        # Windows-compatible atomic file replacement
+        if os.name == "nt":  # Windows
+            # On Windows, we need to handle file locking more carefully
+            max_retries = 3
+            for attempt in range(max_retries):
+                try:
+                    if path.exists():
+                        path.unlink()  # Remove target file first on Windows
+                    temp_path.rename(path)  # Use rename instead of replace
+                    break
+                except (OSError, PermissionError) as e:
+                    if attempt == max_retries - 1:
+                        raise PermissionError(
+                            f"Failed to save progress after {max_retries} attempts. "
+                            f"The file {path} may be locked by another process. "
+                            f"Original error: {e}"
+                        )
+                    time.sleep(0.1 * (attempt + 1))  # Exponential backoff
+        else:
+            # Unix-like systems: use replace for true atomicity
+            temp_path.replace(path)
+            
     except Exception:
         # Clean up temp file if something went wrong
         if temp_path.exists():
