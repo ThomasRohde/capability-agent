@@ -50,11 +50,36 @@ class CapabilityList(RootModel[List[Capability]]):
         children = self.children_map()
         leaves = [c for c in self.root if len(children.get(c.id, [])) == 0]
         
-        # Filter leaves that need generation (capability is 0 or missing)
+        # Filter leaves that need generation (capability is 0, missing, or -1 for error retry)
         return [
             leaf for leaf in leaves 
-            if getattr(leaf, 'capability', 0) == 0
+            if getattr(leaf, 'capability', 0) <= 0  # Include 0 (unprocessed) and -1 (error)
         ]
+
+    def extract_subtree(self, root_id: str) -> "CapabilityList":
+        """Extract a subtree starting from the given root capability ID."""
+        by_id = self.by_id()
+        children = self.children_map()
+        
+        if root_id not in by_id:
+            raise ValueError(f"Capability with id '{root_id}' not found")
+        
+        # Collect all descendants recursively
+        result = []
+        
+        def collect_descendants(node_id: str) -> None:
+            if node_id in by_id:
+                result.append(by_id[node_id])
+                for child in children.get(node_id, []):
+                    collect_descendants(child.id)
+        
+        collect_descendants(root_id)
+        
+        # Set the root node's parent to null since it's now the root of the subtree
+        if result:
+            result[0] = result[0].model_copy(update={"parent": None})
+        
+        return CapabilityList.model_validate(result)
 
     @field_validator("root")
     @classmethod

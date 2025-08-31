@@ -117,6 +117,16 @@ def run(
     except Exception as e:  # noqa: BLE001
         import traceback
         console.print(f"Augmentation failed: {e}", style="error")
+        
+        # In restart mode, provide helpful recovery information
+        if restart:
+            console.print("\n[info]Recovery options for restart mode:[/info]")
+            console.print("1. Re-run the same command to retry failed leaves")
+            console.print("2. Check the input file - progress may have been partially saved")
+            console.print("3. Review the error logs for specific failure details")
+            if log_level != LogLevel.NONE:
+                console.print(f"4. Check OpenAI request logs in: {log_dir}")
+        
         console.print("Full traceback:", style="error")
         console.print(traceback.format_exc(), style="error")
         raise typer.Exit(1)

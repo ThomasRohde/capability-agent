@@ -367,20 +367,56 @@ def _ensure_parsed_output(response) -> CapabilityResponse:
     # Fallback: search content blocks for .parsed
     output = getattr(response, "output", None)
     if not output:
-        raise LLMError("No output from model.")
+        # Capture more debug info about the response structure
+        response_type = type(response).__name__
+        available_attrs = [attr for attr in dir(response) if not attr.startswith('_')]
+        raise LLMError(
+            f"No output from model. Response type: {response_type}, "
+            f"available attributes: {available_attrs}, "
+            f"response: {str(response)[:500]}..."
+        )
     for out in output:
         for content in getattr(out, "content", []) or []:
             parsed = getattr(content, "parsed", None)
             if parsed:
                 return parsed
-    raise LLMError("No structured parsed output found in response.")
+    
+    # More detailed error when no parsed output is found
+    output_structure = []
+    for i, out in enumerate(output):
+        content_info = []
+        for j, content in enumerate(getattr(out, "content", []) or []):
+            content_type = getattr(content, "type", "unknown")
+            has_parsed = hasattr(content, "parsed")
+            content_info.append(f"content[{j}]: type={content_type}, has_parsed={has_parsed}")
+        output_structure.append(f"output[{i}]: {content_info}")
+    
+    raise LLMError(
+        f"No structured parsed output found in response. "
+        f"Output structure: {output_structure}"
+    )
 
 
 def _validate_items(parsed: CapabilityResponse, max_items: int) -> List[Dict[str, str]]:
-    if not parsed or not getattr(parsed, "items", None):
-        raise LLMError("Parsed output does not contain an 'items' list.")
+    if not parsed:
+        raise LLMError("No parsed output received from model.")
+    
+    items_attr = getattr(parsed, "items", None)
+    if items_attr is None:
+        # Capture more debug info about what we actually received
+        parsed_type = type(parsed).__name__
+        available_attrs = [attr for attr in dir(parsed) if not attr.startswith('_')]
+        raise LLMError(
+            f"Parsed output does not contain an 'items' list. "
+            f"Received type: {parsed_type}, available attributes: {available_attrs}, "
+            f"parsed content: {str(parsed)[:500]}..."
+        )
+    
+    if not items_attr:
+        raise LLMError("Parsed output contains an empty 'items' list.")
+        
     items: List[Dict[str, str]] = []
-    for it in parsed.items[:max_items]:
+    for it in items_attr[:max_items]:
         # Defensive validation (even though Pydantic should cover it)
         if not it.name or not it.description:
             continue

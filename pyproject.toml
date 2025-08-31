@@ -36,6 +36,7 @@ dependencies = [
 
 [project.scripts]
 business-capgen = "capability_agent.cli:main"
+bcm-wrench = "capability_agent.wrench:main"
 
 [tool.setuptools]
 package-dir = {"" = "src"}
