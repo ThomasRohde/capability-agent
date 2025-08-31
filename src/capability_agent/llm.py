@@ -289,9 +289,9 @@ def ensure_client(log_dir: Optional[Path] = None, log_level: str = "none") -> Op
 def _default_model() -> str:
     """
     Prefer GPT-5 series if not overridden:
-      OPENAI_MODEL, else "gpt-5-nano".
+      OPENAI_MODEL, else "gpt-5-mini".
     """
-    return os.getenv("OPENAI_MODEL") or "gpt-5-nano"
+    return os.getenv("OPENAI_MODEL") or "gpt-5-mini"
 
 
 def _common_generation_kwargs() -> dict:
@@ -462,6 +462,7 @@ def call_openai(
                 instructions=system_message,  # treated like a system/developer message
                 input=user_prompt,
                 text_format=CapabilityResponse,
+                max_output_tokens=16000,
                 **gen_kwargs,
             )
 

@@ -2,7 +2,7 @@ from __future__ import annotations
 
 import json
 from pathlib import Path
-from typing import Any, Dict, List
+from typing import Any, Dict, List, Optional
 
 from jinja2 import Environment, FileSystemLoader, StrictUndefined
 
@@ -60,6 +60,37 @@ def format_capabilities_as_xml(capabilities: List[Dict[str, Any]]) -> str:
     return "\n".join(lines)
 
 
+def format_capabilities_as_tree(capabilities: List[Dict[str, Any]]) -> str:
+    """Format capabilities as a tree structure with only names."""
+    if not capabilities:
+        return ""
+    
+    # Build parent-child mapping
+    children_by_parent: Dict[Optional[str], List[Dict[str, Any]]] = {}
+    
+    for cap in capabilities:
+        parent_name = cap.get('parent')
+        children_by_parent.setdefault(parent_name, []).append(cap)
+    
+    def build_tree_recursive(parent_name: Optional[str], depth: int = 0) -> List[str]:
+        lines = []
+        children = children_by_parent.get(parent_name, [])
+        # Sort children alphabetically for consistent output
+        children.sort(key=lambda c: c['name'])
+        
+        for child in children:
+            indent = "  " * depth
+            lines.append(f"{indent}{child['name']}")
+            # Recursively add children
+            lines.extend(build_tree_recursive(child['name'], depth + 1))
+        
+        return lines
+    
+    # Start with root nodes (no parent)
+    tree_lines = build_tree_recursive(None)
+    return "\n".join(tree_lines)
+
+
 def build_prompt_context(model: CapabilityList, node: Capability, ctx: ContextOptions, format: ContextFormat = ContextFormat.MARKDOWN) -> Dict[str, Any]:
     by_id = {c.id: c for c in model.root}
     children: Dict[str, List[Capability]] = {}
@@ -72,6 +103,7 @@ def build_prompt_context(model: CapabilityList, node: Capability, ctx: ContextOp
         ContextFormat.JSON: format_capabilities_as_json,
         ContextFormat.MARKDOWN: format_capabilities_as_markdown,
         ContextFormat.XML: format_capabilities_as_xml,
+        ContextFormat.TREE: format_capabilities_as_tree,
     }[format]
 
     # Build context with pre-formatted strings

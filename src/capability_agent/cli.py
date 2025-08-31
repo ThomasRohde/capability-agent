@@ -41,7 +41,7 @@ def run(
     tasks: int = typer.Option(4, min=1, help="Number of concurrent LLM calls"),
     override_system_message: Optional[Path] = typer.Option(None, exists=True, dir_okay=False, readable=True, help="Optional system message file"),
     context_level: Optional[str] = typer.Option(None, help="Comma-separated context: full_tree,parent,siblings"),
-    context_format: str = typer.Option("markdown", help="Context format: json, markdown, or xml"),
+    context_format: str = typer.Option("markdown", help="Context format: json, markdown, xml, or tree"),
     log_prompts: Optional[Path] = typer.Option(
         None,
         "--log-prompts",
@@ -75,7 +75,7 @@ def run(
     try:
         ctx_format = ContextFormat(context_format.lower())
     except ValueError:
-        console.print(f"Invalid context format: {context_format}. Must be one of: json, markdown, xml", style="error")
+        console.print(f"Invalid context format: {context_format}. Must be one of: json, markdown, xml, tree", style="error")
         raise typer.Exit(1)
 
     try:

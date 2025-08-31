@@ -21,6 +21,7 @@ class ContextFormat(Enum):
     JSON = "json"
     MARKDOWN = "markdown"
     XML = "xml"
+    TREE = "tree"
 
 
 @dataclass
