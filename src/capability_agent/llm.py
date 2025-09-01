@@ -289,9 +289,9 @@ def ensure_client(log_dir: Optional[Path] = None, log_level: str = "none") -> Op
 def _default_model() -> str:
     """
     Prefer GPT-5 series if not overridden:
-      OPENAI_MODEL, else "gpt-5-mini".
+      OPENAI_MODEL, else "gpt-5".
     """
-    return os.getenv("OPENAI_MODEL") or "gpt-5-mini"
+    return os.getenv("OPENAI_MODEL") or "gpt-5"
 
 
 def _common_generation_kwargs() -> dict:
@@ -496,6 +496,7 @@ def call_openai(
             response = client.responses.parse(
                 model=model,
                 instructions=system_message,  # treated like a system/developer message
+                tools=[{"type": "web_search_preview"}],
                 input=user_prompt,
                 text_format=CapabilityResponse,
                 max_output_tokens=16000,
@@ -562,6 +563,7 @@ def call_openai_streaming(
             with client.responses.stream(
                 model=model,
                 instructions=system_message,
+                tools=[{"type": "web_search_preview"}],
                 input=user_prompt,
                 text_format=CapabilityResponse,
                 **gen_kwargs,
