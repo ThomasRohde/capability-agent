@@ -7,7 +7,7 @@ import re
 import time
 from datetime import datetime
 from pathlib import Path
-from typing import Dict, List, Optional, Tuple, Iterable
+from typing import Dict, List, Optional, Tuple, Iterable, Mapping
 
 import httpx
 from openai import OpenAI
@@ -96,23 +96,31 @@ class UsageStats(BaseModel):
 class LoggingResponse(httpx.Response):
     """Custom response that logs response data as it's consumed."""
     
-    def __init__(self, *args, logger: Optional[logging.Logger] = None, log_level: str = "basic", **kwargs):
+    def __init__(
+        self,
+        *args,
+        logger: Optional[logging.Logger] = None,
+        log_level: str = "basic",
+        log_body: bool = False,
+        **kwargs,
+    ):
         super().__init__(*args, **kwargs)
         self.logger = logger
         self.log_level = log_level
+        self.log_body = log_body
         self._response_body = b""
         
     def iter_bytes(self, *args, **kwargs):
         """Override to capture response data for logging."""
         for chunk in super().iter_bytes(*args, **kwargs):
-            if self.logger and self.log_level == "full":
+            if self.logger and self.log_level == "full" and self.log_body:
                 self._response_body += chunk
             yield chunk
             
     def read(self):
         """Override to capture response data for logging."""
         content = super().read()
-        if self.logger and self.log_level == "full":
+        if self.logger and self.log_level == "full" and self.log_body:
             self._response_body = content
         return content
         
@@ -120,10 +128,17 @@ class LoggingResponse(httpx.Response):
 class LoggingTransport(httpx.BaseTransport):
     """Custom transport that logs OpenAI requests and responses."""
     
-    def __init__(self, transport: httpx.BaseTransport, logger: Optional[logging.Logger] = None, log_level: str = "basic"):
+    def __init__(
+        self,
+        transport: httpx.BaseTransport,
+        logger: Optional[logging.Logger] = None,
+        log_level: str = "basic",
+        log_body: bool = False,
+    ):
         self.transport = transport
         self.logger = logger
         self.log_level = log_level
+        self.log_body = log_body
         
     def handle_request(self, request: httpx.Request) -> httpx.Response:
         """Handle request with logging."""
@@ -144,6 +159,7 @@ class LoggingTransport(httpx.BaseTransport):
             extensions=response.extensions,
             logger=self.logger,
             log_level=self.log_level,
+            log_body=self.log_body,
         )
         
         # Log response
@@ -159,10 +175,10 @@ class LoggingTransport(httpx.BaseTransport):
             "type": "request",
             "method": request.method,
             "url": str(request.url),
-            "headers": dict(request.headers) if self.log_level == "full" else {"content-type": request.headers.get("content-type")},
+            "headers": _sanitize_headers(request.headers) if self.log_level == "full" else {"content-type": request.headers.get("content-type")},
         }
-        
-        if self.log_level == "full" and request.content:
+
+        if self.log_level == "full" and self.log_body and request.content:
             try:
                 # Try to parse as JSON for better readability
                 content = json.loads(request.content.decode("utf-8"))
@@ -192,8 +208,8 @@ class LoggingTransport(httpx.BaseTransport):
                 log_data["ratelimit_remaining_tokens"] = response.headers["x-ratelimit-remaining-tokens"]
                 
         elif self.log_level == "full":
-            log_data["headers"] = dict(response.headers)
-            if hasattr(response, "_response_body") and response._response_body:
+            log_data["headers"] = _sanitize_headers(response.headers)
+            if hasattr(response, "_response_body") and response._response_body and self.log_body:
                 try:
                     # Try to parse as JSON for better readability
                     content = json.loads(response._response_body.decode("utf-8"))
@@ -277,7 +293,12 @@ def ensure_client(log_dir: Optional[Path] = None, log_level: str = "none") -> Op
         if logger:
             # Create base transport (HTTP or async)
             base_transport = httpx.HTTPTransport()
-            logging_transport = LoggingTransport(base_transport, logger, log_level)
+            logging_transport = LoggingTransport(
+                base_transport,
+                logger,
+                log_level,
+                log_body=_should_log_body(),
+            )
             
             # Create custom HTTP client with logging transport
             http_client = httpx.Client(transport=logging_transport)
@@ -315,6 +336,9 @@ def _common_generation_kwargs() -> dict:
             kwargs["max_output_tokens"] = int(os.environ["OPENAI_MAX_OUTPUT_TOKENS"])
         except ValueError:
             pass
+    else:
+        # Use a conservative default unless overridden by env
+        kwargs["max_output_tokens"] = 16000
     if "OPENAI_SEED" in os.environ:
         try:
             kwargs["seed"] = int(os.environ["OPENAI_SEED"])
@@ -499,7 +523,6 @@ def call_openai(
                 tools=[{"type": "web_search_preview"}],
                 input=user_prompt,
                 text_format=CapabilityResponse,
-                max_output_tokens=16000,
                 **gen_kwargs,
             )
 
@@ -629,3 +652,39 @@ def call_openai_streaming(
             time.sleep(delay)
 
     raise LLMError(f"Streaming error after retries: {last_exc}") from last_exc
+
+
+# =========================
+# Logging helpers (internal)
+# =========================
+
+def _should_log_body() -> bool:
+    """Return True if request/response bodies should be logged in FULL mode.
+
+    Controlled by env var OPENAI_LOG_BODY in {1,true,yes,on} (case-insensitive).
+    Defaults to False for safety.
+    """
+    return os.getenv("OPENAI_LOG_BODY", "").strip().lower() in {"1", "true", "yes", "on"}
+
+
+def _sanitize_headers(headers: Mapping[str, str]) -> Dict[str, str]:
+    """Return a copy of headers with sensitive values redacted.
+
+    Redacts common credential/cookie headers and any header containing 'auth' or 'cookie'.
+    """
+    redact_keys = {
+        "authorization",
+        "proxy-authorization",
+        "x-api-key",
+        "api-key",
+        "cookie",
+        "set-cookie",
+    }
+    sanitized: Dict[str, str] = {}
+    for k, v in dict(headers).items():
+        kl = k.lower()
+        if kl in redact_keys or "auth" in kl or "cookie" in kl:
+            sanitized[k] = "[REDACTED]"
+        else:
+            sanitized[k] = v
+    return sanitized

@@ -43,6 +43,11 @@ business-capgen \
 
 Environment:
 - Set `OPENAI_API_KEY` for API access.
+- Optional: `OPENAI_MODEL` to set the model (otherwise defaults internally).
+- Optional: `OPENAI_TEMPERATURE`, `OPENAI_MAX_OUTPUT_TOKENS`, `OPENAI_SEED` to tune generation.
+- Optional logging:
+  - `--log-level` cli flag controls header/body logging; use `basic` for safe metadata only.
+  - `OPENAI_LOG_BODY` in {1,true,yes,on} to include request/response bodies when `--log-level full` is used (off by default for safety).
 
 ## Features
 

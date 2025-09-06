@@ -106,13 +106,11 @@ def save_progress(path: Path, model_data: List[Dict[str, Any]]) -> None:
         
         # Windows-compatible atomic file replacement
         if os.name == "nt":  # Windows
-            # On Windows, we need to handle file locking more carefully
+            # Prefer os.replace for atomic swap without deleting original first
             max_retries = 3
             for attempt in range(max_retries):
                 try:
-                    if path.exists():
-                        path.unlink()  # Remove target file first on Windows
-                    temp_path.rename(path)  # Use rename instead of replace
+                    os.replace(temp_path, path)
                     break
                 except (OSError, PermissionError) as e:
                     if attempt == max_retries - 1:

@@ -63,6 +63,8 @@ def augment_model(
                 # Update the capability attribute for the processed leaf
                 leaf_dict = leaf.model_dump()
                 leaf_dict['capability'] = 1
+                # Clear any previous error marker on success
+                leaf_dict.pop('error', None)
                 
                 # Find and update the leaf in the current model
                 for i, c in enumerate(model.root):
@@ -111,9 +113,9 @@ def augment_model(
 
             # Inherit extra fields from parent (leaf) except reserved keys
             inherited = leaf.model_dump()
-            inherited.pop("id", None)
-            inherited.pop("name", None)
-            inherited.pop("description", None)
+            # Remove reserved and internal fields so they don't propagate to children
+            for key in ("id", "name", "description", "capability", "error"):
+                inherited.pop(key, None)
 
             children: List[Capability] = []
             for item in generated:
