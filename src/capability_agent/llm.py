@@ -94,36 +94,86 @@ class UsageStats(BaseModel):
 # =========================
 
 class LoggingResponse(httpx.Response):
-    """Custom response that logs response data as it's consumed."""
-    
+    """Custom response that logs response data once consumption finishes."""
+
     def __init__(
         self,
         *args,
         logger: Optional[logging.Logger] = None,
         log_level: str = "basic",
         log_body: bool = False,
+        request: Optional[httpx.Request] = None,
+        start_time: Optional[float] = None,
         **kwargs,
     ):
-        super().__init__(*args, **kwargs)
+        super().__init__(*args, request=request, **kwargs)
         self.logger = logger
         self.log_level = log_level
         self.log_body = log_body
         self._response_body = b""
-        
+        self._start_time = start_time
+        self._logged = False
+
+    def _log_response_if_needed(self) -> None:
+        if not self.logger or self._logged:
+            return
+
+        duration = 0.0
+        if self._start_time is not None:
+            duration = round(time.time() - self._start_time, 3)
+
+        req = getattr(self, "request", None)
+        log_data = {
+            "timestamp": datetime.now().isoformat(),
+            "type": "response",
+            "status_code": self.status_code,
+            "duration_seconds": duration,
+            "url": str(req.url) if req else "",
+        }
+
+        if self.log_level == "basic":
+            if "openai-processing-ms" in self.headers:
+                log_data["openai_processing_ms"] = self.headers["openai-processing-ms"]
+            if "x-ratelimit-remaining-requests" in self.headers:
+                log_data["ratelimit_remaining_requests"] = self.headers["x-ratelimit-remaining-requests"]
+            if "x-ratelimit-remaining-tokens" in self.headers:
+                log_data["ratelimit_remaining_tokens"] = self.headers["x-ratelimit-remaining-tokens"]
+        elif self.log_level == "full":
+            log_data["headers"] = _sanitize_headers(self.headers)
+            if self.log_body and self._response_body:
+                try:
+                    content = json.loads(self._response_body.decode("utf-8"))
+                    log_data["body"] = content
+                except (json.JSONDecodeError, UnicodeDecodeError):
+                    log_data["body"] = self._response_body.decode("utf-8", errors="replace")
+
+        self.logger.info(json.dumps(log_data, ensure_ascii=False))
+        self._logged = True
+
     def iter_bytes(self, *args, **kwargs):
         """Override to capture response data for logging."""
-        for chunk in super().iter_bytes(*args, **kwargs):
-            if self.logger and self.log_level == "full" and self.log_body:
-                self._response_body += chunk
-            yield chunk
-            
+        try:
+            for chunk in super().iter_bytes(*args, **kwargs):
+                if self.logger and self.log_level == "full" and self.log_body:
+                    self._response_body += chunk
+                yield chunk
+        finally:
+            self._log_response_if_needed()
+
     def read(self):
         """Override to capture response data for logging."""
         content = super().read()
         if self.logger and self.log_level == "full" and self.log_body:
             self._response_body = content
+        self._log_response_if_needed()
         return content
-        
+
+    def close(self) -> None:
+        try:
+            super().close()
+        finally:
+            self._log_response_if_needed()
+
 
 class LoggingTransport(httpx.BaseTransport):
     """Custom transport that logs OpenAI requests and responses."""
@@ -157,15 +207,13 @@ class LoggingTransport(httpx.BaseTransport):
             headers=response.headers,
             stream=response.stream,
             extensions=response.extensions,
+            request=response.request or request,
             logger=self.logger,
             log_level=self.log_level,
             log_body=self.log_body,
+            start_time=start_time,
         )
-        
-        # Log response
-        if self.logger:
-            self._log_response(request, logging_response, time.time() - start_time)
-            
+
         return logging_response
     
     def _log_request(self, request: httpx.Request, timestamp: float):
@@ -188,38 +236,6 @@ class LoggingTransport(httpx.BaseTransport):
         
         self.logger.info(json.dumps(log_data, ensure_ascii=False))
     
-    def _log_response(self, request: httpx.Request, response: LoggingResponse, duration: float):
-        """Log the response."""
-        log_data = {
-            "timestamp": datetime.now().isoformat(),
-            "type": "response", 
-            "status_code": response.status_code,
-            "duration_seconds": round(duration, 3),
-            "url": str(request.url),
-        }
-        
-        if self.log_level == "basic":
-            # Extract usage stats from headers if available
-            if "openai-processing-ms" in response.headers:
-                log_data["openai_processing_ms"] = response.headers["openai-processing-ms"]
-            if "x-ratelimit-remaining-requests" in response.headers:
-                log_data["ratelimit_remaining_requests"] = response.headers["x-ratelimit-remaining-requests"]
-            if "x-ratelimit-remaining-tokens" in response.headers:
-                log_data["ratelimit_remaining_tokens"] = response.headers["x-ratelimit-remaining-tokens"]
-                
-        elif self.log_level == "full":
-            log_data["headers"] = _sanitize_headers(response.headers)
-            if hasattr(response, "_response_body") and response._response_body and self.log_body:
-                try:
-                    # Try to parse as JSON for better readability
-                    content = json.loads(response._response_body.decode("utf-8"))
-                    log_data["body"] = content
-                except (json.JSONDecodeError, UnicodeDecodeError):
-                    log_data["body"] = response._response_body.decode("utf-8", errors="replace")
-        
-        self.logger.info(json.dumps(log_data, ensure_ascii=False))
-
-
 def setup_openai_logging(log_dir: Path, log_level: str) -> Optional[logging.Logger]:
     """Set up logging for OpenAI requests and responses."""
     if log_level == "none":

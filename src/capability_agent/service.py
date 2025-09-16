@@ -56,8 +56,8 @@ def augment_model(
     new_nodes: List[Capability] = []
     progress_lock = threading.Lock()  # Thread-safe progress saving
     
-    def save_leaf_progress(leaf: Capability) -> None:
-        """Mark a leaf as generated and save progress if in restart mode."""
+    def save_leaf_progress(leaf: Capability, children: Sequence[Capability]) -> None:
+        """Mark a leaf as generated and persist progress, including its new children."""
         if restart_mode and input_path:
             with progress_lock:  # Ensure thread-safe progress saving
                 # Update the capability attribute for the processed leaf
@@ -65,7 +65,7 @@ def augment_model(
                 leaf_dict['capability'] = 1
                 # Clear any previous error marker on success
                 leaf_dict.pop('error', None)
-                
+
                 # Find and update the leaf in the current model
                 for i, c in enumerate(model.root):
                     if c.id == leaf.id:
@@ -73,9 +73,11 @@ def augment_model(
                         updated_cap = Capability.model_validate(leaf_dict)
                         model.root[i] = updated_cap
                         break
-                
-                # Save progress
-                current_data = [c.model_dump() for c in model.root] + [c.model_dump() for c in new_nodes]
+
+                # Save progress with pending new nodes for this leaf
+                current_data = [c.model_dump() for c in model.root]
+                current_data.extend(c.model_dump() for c in new_nodes)
+                current_data.extend(c.model_dump() for c in children)
                 save_progress(input_path, current_data)
 
     def generate_children(leaf: Capability) -> tuple[Sequence[Capability], UsageStats]:
@@ -130,7 +132,7 @@ def augment_model(
                 children.append(Capability.model_validate(node_data))
             
             # Save progress after successful generation
-            save_leaf_progress(leaf)
+            save_leaf_progress(leaf, children)
             return children, usage_stats
             
         except Exception as e:
